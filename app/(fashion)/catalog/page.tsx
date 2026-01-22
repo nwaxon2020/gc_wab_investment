@@ -1,3 +1,3 @@
-export function CartlogPage() {
+export default function CartlogPage() {
     return <div>Cartlog Page</div>
 }
