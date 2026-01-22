@@ -1,4 +1,4 @@
 
-export function CarDetailPage() {
+export default function CarDetailPage() {
     return <div>Car Detail Page</div>
 }
