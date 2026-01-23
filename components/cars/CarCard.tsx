@@ -4,8 +4,8 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FaPlay, FaTimes, FaWhatsapp, FaExternalLinkAlt, 
-  FaCalendarAlt, FaCogs, FaSnowflake, FaHandshake, FaArrowRight, 
-  FaFileAlt, FaPalette, FaCouch, FaAward, FaHeart, FaRegHeart,FaEye, 
+  FaCalendarAlt, FaCogs, FaSnowflake, FaHandshake, 
+  FaFileAlt, FaPalette, FaCouch, FaAward, FaHeart, FaRegHeart, 
 } from 'react-icons/fa';
 
 interface Car {
@@ -120,7 +120,7 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
             onClick={() => setShowDetails(true)}
             className="absolute top-2 right-1 md:top-4 md:right-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-2 py-1 md:px-3 rounded-xl md:rounded-full font-semibold text-xs hover:shadow-lg transition-all duration-300 flex items-center gap-2"
           >
-            <div className='flex hidden md:block'>View Details <FaArrowRight /></div>
+            <div className='flex hidden md:block'>View Details</div>
             <span className='md:hidden'>View</span>
           </motion.button>
          
