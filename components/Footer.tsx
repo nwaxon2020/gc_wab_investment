@@ -170,7 +170,7 @@ export default function Footer() {
 
             {/* ADMIN OVERLAY */}
             {showAdminOverlay && (
-                <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-md p-3">
+                <div className="mt-18 fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-md p-3">
                     <div className="bg-[#0f0f0f] w-full max-w-md rounded-[3rem] p-6 md:p-10 border border-white/10 shadow-[0_0_50px_rgba(22,163,74,0.1)] relative">
                         <button 
                             onClick={() => setShowAdminOverlay(false)} 
