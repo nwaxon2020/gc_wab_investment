@@ -167,7 +167,7 @@ export default function Home() {
         </div>
 
         {/* Search and Filters */}
-        <div className="px-2 max-w-7xl mx-auto mb-6">
+        <div className="px-2 max-w-7xl mx-auto mb-12">
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-gray-900/50 backdrop-blur-sm rounded-lg px-3 md:px-6 py-3 border border-gray-800">
             
             <div className="relative flex-1 w-full text-white">
