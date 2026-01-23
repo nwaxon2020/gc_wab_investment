@@ -6,7 +6,7 @@ import { Toaster } from 'sonner';
 
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
-import ChatBot from '@/components/home/ChatBot'
+import ChatBot from '@/components/ChatBot'
 
 
 const geistSans = Geist({

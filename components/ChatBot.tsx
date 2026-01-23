@@ -144,7 +144,7 @@ export default function ChatBot() {
         </div>
       ) : (
         <>
-          <div className={`w-full md:w-64 bg-[#0b2f23] border-r border-emerald-900/30 flex-col shrink-0 ${mobileView === 'chat' ? 'hidden md:flex' : 'flex'}`}>
+          <div className={`w-full md:w-64 bg-[#0b2f23] border-r-2 border-gray-200 flex-col shrink-0 ${mobileView === 'chat' ? 'hidden md:flex' : 'flex'}`}>
             <div className="p-4 bg-emerald-800 text-white font-bold flex justify-between items-center shrink-0">
               <span className="text-xs uppercase tracking-widest">{isAdmin ? "Client Inquiries" : "Support"}</span>
               <button onClick={closeChat} className="md:hidden"><XMarkIcon className="w-6 h-6 text-white" /></button>
@@ -189,7 +189,8 @@ export default function ChatBot() {
               )}
             </div>
           </div>
-
+            
+          {/* Chat Message Ui */}
           <div className={`flex-1 flex flex-col min-w-0 ${isAdmin && mobileView === 'list' ? 'hidden md:flex' : 'flex'}`}>
             <div className="p-4 bg-emerald-800 text-white flex items-center justify-between shrink-0">
               <div className="flex items-center gap-2 text-white">

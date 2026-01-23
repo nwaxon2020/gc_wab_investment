@@ -1,14 +1,19 @@
-// app/(cars)/layout.tsx
+import { Inter } from 'next/font/google'
+import '@/app/globals.css'
 
-export default function CarsLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+const inter = Inter({ subsets: ['latin'] })
+
+export const metadata = {
+  title: 'Premium Car Showcase',
+  description: 'Discover the world\'s most exclusive supercars',
+}
+
+export default function RootLayout({ children,}: Readonly<{children: React.ReactNode;}>)  {
   return (
-    <section>
-      {/* You can add a specific sidebar or nav for cars here */}
-      {children}
-    </section>
+    <html lang="en">
+      <body className={`${inter.className} bg-black`}>
+        {children}
+      </body>
+    </html>
   )
 }

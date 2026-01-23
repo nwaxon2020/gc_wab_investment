@@ -1,3 +1,5 @@
+import CarPageUi from "@/ui/CarPageUi";
+
 export default function CarPage() {
-    return <div>Car Page</div>
+    return <CarPageUi/>
 }
