@@ -86,11 +86,11 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <div className="relative max-h-28 md:h-48 overflow-hidden">
+        <div className="relative h-28 md:h-48 overflow-hidden">
           <motion.img
             src={isHovered && car.images[1] ? car.images[1] : car.images[0]}
             alt={car.name}
-            className="w-full min-h-[10rem] md:h-full md:object-cover"
+            className="w-full h-[10rem] md:h-full object-cover"
             animate={{ scale: isHovered ? 1.1 : 1 }}
             transition={{ duration: 0.5 }}
           />
