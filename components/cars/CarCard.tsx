@@ -129,10 +129,13 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
         <div className="p-2 md:p-4">
           <div className="relative flex justify-between items-start mb-2.5 md:mb-3.5">
             <div>
+              <span className="md:hidden bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2 md:px-3 py-1 rounded-lg md:rounded-full text-[10px] md:text-sm md:font-bold">
+                ₦{car.price.toLocaleString()}
+              </span>
               <h3 className="text-sm md:text-xl font-semibold md:font-bold text-white pb-1">{car.name}</h3>
               <p className="text-gray-400 text-xs md:text-sm">{car.model}</p>
             </div>
-            <span className="absolute -top-2 -right-3.5 md:static bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2 md:px-3 py-1 rounded-lg md:rounded-full text-[10px] md:text-sm md:font-bold">
+            <span className="hidden md:block absolute -top-2 -right-3.5 md:static bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2 md:px-3 py-1 rounded-lg md:rounded-full text-[10px] md:text-sm md:font-bold">
               ₦{car.price.toLocaleString()}
             </span>
           </div>
