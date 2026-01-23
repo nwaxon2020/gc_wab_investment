@@ -96,7 +96,7 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
           
-          <div className="absolute top-2 left-2 md:top-4 md:left-4 z-10 flex flex-col items-center">
+          <div className="absolute top-2 left-1 md:top-4 md:left-4 z-10 flex flex-col items-center">
             <motion.button
               whileHover={{ scale: 1.2 }}
               whileTap={{ scale: 0.8 }}
@@ -118,12 +118,12 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowDetails(true)}
-            className="absolute top-2 right-2 md:top-4 md:right-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-2 md:px-3 rounded-xl md:rounded-full font-semibold text-xs hover:shadow-lg transition-all duration-300 flex items-center gap-2"
+            className="absolute top-2 right-1 md:top-4 md:right-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-2 py-1 md:px-3 rounded-xl md:rounded-full font-semibold text-xs hover:shadow-lg transition-all duration-300 flex items-center gap-2"
           >
-            <span className='hidden md:block'>View Details <FaArrowRight /></span>
-            <div className='flex md:hidden'><FaEye/> <FaArrowRight /></div>
-
+            <div className='flex hidden md:block'>View Details <FaArrowRight /></div>
+            <span className='md:hidden'>View</span>
           </motion.button>
+         
         </div>
 
         <div className="p-2 md:p-4">
@@ -135,7 +135,7 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
               <h3 className="text-sm md:text-xl font-semibold md:font-bold text-white pb-1">{car.name}</h3>
               <p className="text-gray-400 text-xs md:text-sm">{car.model}</p>
             </div>
-            <span className="hidden md:block absolute -top-2 -right-3.5 md:static bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2 md:px-3 py-1 rounded-lg md:rounded-full text-[10px] md:text-sm md:font-bold">
+            <span className="hidden md:block bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2 md:px-3 py-1 rounded-lg md:rounded-full text-[10px] md:text-sm md:font-bold">
               ₦{car.price.toLocaleString()}
             </span>
           </div>
