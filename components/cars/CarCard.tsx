@@ -167,41 +167,31 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
           </div>
 
           <div className="grid grid-cols-3 md:grid-cols-4 gap-2 md:gap-3">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <button
               onClick={openWhatsApp}
               className="col-span-2 md:col-span-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white py-1 md:py-2 rounded-lg font-bold hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
             >
               <FaWhatsapp className="text-xl" /> <span className='text-sm hidden md:flex'>Contact Us</span>
-            </motion.button>
+            </button>
             
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <button
               onClick={handleVideoPlay}
               className="bg-gradient-to-r from-red-500 to-pink-600 text-white py-1 md:py-2 rounded-lg font-bold hover:shadow-lg transition-all duration-300 flex items-center justify-center"
             >
               <FaPlay />
-            </motion.button>
+            </button>
           </div>
         </div>
       </motion.div>
 
       {/* Video Modal */}
-      <AnimatePresence>
+      <>
         {isVideoPlaying && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+          <div
             className="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-4"
             onClick={handleVideoClose}
           >
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
+            <div
               className="relative max-w-4xl w-full"
               onClick={(e: React.MouseEvent) => e.stopPropagation()}
             >
@@ -209,10 +199,10 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
                 <FaTimes />
               </button>
               <video ref={videoRef} src={car.videoUrl} controls className="w-full rounded-2xl shadow-2xl" onEnded={() => setIsVideoPlaying(false)} />
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         )}
-      </AnimatePresence>
+      </>
 
       {/* Slidable Image Overlay */}
       <AnimatePresence>
@@ -257,20 +247,13 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
       </AnimatePresence>
 
       {/* Details Modal */}
-      <AnimatePresence>
+      <>
         {showDetails && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+          <div
             className="fixed inset-0 bg-black/95 z-50 overflow-y-auto p-1.5"
             onClick={() => setShowDetails(false)}
           >
-            <motion.div
-              initial={{ scale: 0.9, y: 50, opacity: 0 }}
-              animate={{ scale: 1, y: 0, opacity: 1 }}
-              exit={{ scale: 0.9, y: 50, opacity: 0 }}
-              transition={{ type: "spring", damping: 25 }}
+            <div
               className="bg-gradient-to-br from-gray-900 to-black rounded-3xl max-w-6xl mx-auto my-4 overflow-hidden border border-gray-800"
               onClick={(e: React.MouseEvent) => e.stopPropagation()}
             >
@@ -280,7 +263,7 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
                     className="relative h-70 md:h-96 rounded-2xl overflow-hidden mb-4 cursor-zoom-in"
                     onClick={() => setShowFullImage(true)}
                   >
-                    <motion.img src={selectedImage} alt={car.name} className="w-full h-full object-cover" />
+                    <img src={selectedImage} alt={car.name} className="w-full h-full object-cover" />
                     <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 bg-black/20 backdrop-blur-sm p-2 rounded-full">
                        {car.images.map((_, i) => (
                          <div key={i} className={`w-1.5 h-1.5 rounded-full ${imgIndex === i ? 'bg-white' : 'bg-white/40'}`} />
@@ -291,15 +274,13 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
                   {/* Thumbnail images */}
                   <div className="flex gap-3 overflow-x-auto p-2 scrollbar-hide snap-x">
                     {car.images.map((image, index) => (
-                      <motion.button
+                      <button
                         key={index}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
                         onClick={() => setImgIndex(index)}
                         className={`flex-shrink-0 snap-start w-20 h-14 md:w-24 md:h-18 rounded-xl overflow-hidden border-2 transition-all duration-300 ${imgIndex === index ? 'border-blue-500 scale-105 shadow-[0_0_10px_rgba(59,130,246,0.5)]' : 'border-gray-700 hover:border-gray-500'}`}
                       >
                         <img src={image} className="w-full h-full object-cover" />
-                      </motion.button>
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -366,29 +347,25 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
                   </div>
 
                   <div className="flex flex-col sm:flex-row gap-4">
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                    <button
                       onClick={handleVideoPlay}
                       className="flex-1 bg-gradient-to-r from-red-600 to-pink-700 text-white py-3 rounded-xl font-bold hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-3 text-sm"
                     >
                       <FaPlay /> Watch Review Video
-                    </motion.button>
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                    </button>
+                    <button
                       onClick={openWhatsApp}
                       className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 rounded-xl font-bold hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-3 text-sm"
                     >
                       <FaWhatsapp className="text-xl" /> WhatsApp Agent
-                    </motion.button>
+                    </button>
                   </div>
                 </div>
               </div>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         )}
-      </AnimatePresence>
+      </>
     </>
   );
 };
