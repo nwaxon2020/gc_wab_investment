@@ -11,10 +11,8 @@ export default function Nav() {
   const pathname = usePathname()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
-  const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [isAdmin, setIsAdmin] = useState(false)
-  const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (currentUser) => {
@@ -52,20 +50,6 @@ export default function Nav() {
             <span className="text-[9px] text-gray-400 uppercase tracking-widest leading-none">Investments</span>
           </div>
         </Link>
-
-        {/* DESKTOP SEARCH - Width reduced to allow navs to spread */}
-        <div className="hidden md:flex w-full max-w-md mx-4">
-          <div className="relative w-full group">
-            <input 
-              type="text" 
-              value={searchQuery} 
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search..."
-              className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-3 px-12 outline-none focus:border-[#16a34a] focus:bg-white transition-all text-sm text-gray-600 font-normal"
-            />
-            <i className="fas fa-search absolute left-4 top-3.5 text-[#16a34a]"></i>
-          </div>
-        </div>
 
         {/* DESKTOP NAV & PROFILE */}
         <div className="hidden md:flex items-center space-x-10">
@@ -116,7 +100,7 @@ export default function Nav() {
         {/* MOBILE CONTROLS */}
         <div className="flex md:hidden items-center gap-2">
             {user && (
-               <div className="flex items-center gap-2 mr-1">
+                <div className="flex items-center gap-2 mr-1">
                   <span className="text-[10px] font-black text-[#14532d] uppercase">
                     {isAdmin ? 'Admin' : user.displayName?.split(' ')[0]}
                   </span>
@@ -126,33 +110,18 @@ export default function Nav() {
                     className="w-7 h-7 rounded-full border border-[#16a34a] object-cover" 
                     alt="user" 
                   />
-               </div>
+                </div>
             )}
-            <button className="p-2.5 rounded-xl bg-gray-50 text-[#14532d]" onClick={() => { setIsSearchOpen(!isSearchOpen); setIsMobileMenuOpen(false); }}>
-                <i className="fas fa-search text-lg"></i>
-            </button>
-            <button className="p-2.5 rounded-xl bg-gray-50 text-[#14532d]" onClick={() => { setIsMobileMenuOpen(true); setIsSearchOpen(false); }}>
+            <button className="p-2.5 rounded-xl bg-gray-50 text-[#14532d]" onClick={() => setIsMobileMenuOpen(true)}>
                 <i className="fas fa-bars text-lg"></i>
             </button>
         </div>
       </nav>
 
-      {/* MOBILE SEARCH DROPDOWN */}
-      <div className={`md:hidden overflow-hidden transition-all duration-300 ${isSearchOpen ? 'max-h-24 p-4 border-b bg-white' : 'max-h-0'}`}>
-          <div className="relative">
-            <input 
-              type="text" 
-              placeholder="Search collection..." 
-              className="w-full bg-gray-100 py-3 px-12 rounded-xl outline-none text-sm text-[#14532d]" 
-            />
-            <i className="fas fa-search absolute left-4 top-3.5 text-[#16a34a]"></i>
-          </div>
-      </div>
-
       {/* MOBILE NAV DRAWER */}
       <AnimatePresence>
         {isMobileMenuOpen && (
-          <div className="md:hidden">
+          <div className="z-50 md:hidden">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsMobileMenuOpen(false)} className="fixed inset-0 bg-black/60 backdrop-blur-md z-[110]" />
             <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'tween', duration: 0.4 }} className="fixed top-0 right-0 h-screen w-[85%] bg-[#14532d] z-[120] flex flex-col shadow-2xl">
               <div className="p-8 flex justify-between items-center border-b border-white/10 text-white">
@@ -167,7 +136,7 @@ export default function Nav() {
                 ))}
               </div>
 
-              <div className="mt-auto p-8 border-t border-white/10 bg-black/20 text-white">
+              <div className="text-center mt-auto p-8 border-t border-white/10 bg-black/20 text-white">
                 {user ? (
                   <div className="flex flex-col gap-4">
                     <div className="overflow-hidden">

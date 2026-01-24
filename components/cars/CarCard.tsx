@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FaPlay, FaTimes, FaWhatsapp, FaExternalLinkAlt, 
   FaCalendarAlt, FaCogs, FaHandshake, FaFileAlt,
-  FaPalette, FaCouch, FaAward, FaHeart, FaRegHeart, 
+  FaPalette, FaCouch, FaAward, FaHeart, FaRegHeart,
 } from 'react-icons/fa';
 import { GiGearStickPattern } from "react-icons/gi";
 
@@ -30,7 +30,8 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
   const searchParams = useSearchParams();
   const [isHovered, setIsHovered] = useState<boolean>(false);
   const [showDetails, setShowDetails] = useState<boolean>(false);
-  const [selectedImage, setSelectedImage] = useState<string>(car.images[0]);
+  const [showFullImage, setShowFullImage] = useState<boolean>(false);
+  const [imgIndex, setImgIndex] = useState(0); 
   const [isVideoPlaying, setIsVideoPlaying] = useState<boolean>(false);
   const [isLiked, setIsLiked] = useState<boolean>(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -39,12 +40,19 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
   const whatsappNumber = "+2347034632037";
   const whatsappMessage = `Hello! I'm interested in the ${car.name} ${car.model}. Please provide more details.`;
 
-  // NEW LOGIC: Check URL for ID and auto-open details
+  // LOGIC: Build a GSMArena-style Technical Database URL
+  const technicalDbUrl = useMemo(() => {
+    if (car.externalLink && car.externalLink.startsWith('http')) return car.externalLink;
+    // Fallback: Search Auto-Data.net (The GSMArena of cars)
+    return `https://www.auto-data.net/en/results?search=${encodeURIComponent(car.name + " " + car.model)}`;
+  }, [car.name, car.model, car.externalLink]);
+
+  const selectedImage = car.images[imgIndex];
+
   useEffect(() => {
     const viewId = searchParams.get('view');
     if (viewId && viewId === car.id.toString()) {
       setShowDetails(true);
-      // Optional: Scroll to card
       window.scrollTo({ top: 400, behavior: 'smooth' });
     }
   }, [searchParams, car.id]);
@@ -74,6 +82,14 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
   const handleVideoPlay = () => { setIsVideoPlaying(true); videoRef.current?.play(); };
   const handleVideoClose = () => { setIsVideoPlaying(false); videoRef.current?.pause(); };
   const openWhatsApp = () => { window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`, '_blank'); };
+
+  const handleDragEnd = (event: any, info: any) => {
+    if (info.offset.x < -100 && imgIndex < car.images.length - 1) {
+      setImgIndex(imgIndex + 1);
+    } else if (info.offset.x > 100 && imgIndex > 0) {
+      setImgIndex(imgIndex - 1);
+    }
+  };
 
   return (
     <>
@@ -172,13 +188,14 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
         </div>
       </motion.div>
 
+      {/* Video Modal */}
       <AnimatePresence>
         {isVideoPlaying && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-4"
             onClick={handleVideoClose}
           >
             <motion.div
@@ -197,6 +214,49 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
         )}
       </AnimatePresence>
 
+      {/* Slidable Image Overlay */}
+      <AnimatePresence>
+        {showFullImage && (
+          <motion.div 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/98 z-[110] flex flex-col items-center justify-center touch-none"
+            onClick={() => setShowFullImage(false)}
+          >
+            <button className="absolute top-8 right-8 text-white text-3xl z-[120]"><FaTimes /></button>
+            
+            <motion.div
+              key={imgIndex}
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              onDragEnd={handleDragEnd}
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -50 }}
+              className="w-full h-full flex items-center justify-center cursor-grab active:cursor-grabbing"
+            >
+              <img 
+                src={car.images[imgIndex]} 
+                className="max-w-full max-h-[85vh] object-contain pointer-events-none" 
+              />
+            </motion.div>
+
+            {/* Dots for image list */}
+            <div className="absolute bottom-10 flex gap-3">
+              {car.images.map((_, i) => (
+                <div 
+                  key={i} 
+                  onClick={(e) => { e.stopPropagation(); setImgIndex(i); }}
+                  className={`w-2.5 h-2.5 rounded-full cursor-pointer transition-all ${imgIndex === i ? 'bg-blue-500 scale-125' : 'bg-gray-600'}`} 
+                />
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Details Modal */}
       <AnimatePresence>
         {showDetails && (
           <motion.div
@@ -216,19 +276,29 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
             >
               <div className="grid md:grid-cols-2 gap-8 p-3 md:p-6 lg:p-10">
                 <div>
-                  <div className="relative h-70 md:h-96 rounded-2xl overflow-hidden mb-4">
-                    <img src={selectedImage} alt={car.name} className="w-full h-full object-cover" />
+                  <div 
+                    className="relative h-70 md:h-96 rounded-2xl overflow-hidden mb-4 cursor-zoom-in"
+                    onClick={() => setShowFullImage(true)}
+                  >
+                    <motion.img src={selectedImage} alt={car.name} className="w-full h-full object-cover" />
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 bg-black/20 backdrop-blur-sm p-2 rounded-full">
+                       {car.images.map((_, i) => (
+                         <div key={i} className={`w-1.5 h-1.5 rounded-full ${imgIndex === i ? 'bg-white' : 'bg-white/40'}`} />
+                       ))}
+                    </div>
                   </div>
-                  <div className="grid grid-cols-4 gap-3">
+                  
+                  {/* Thumbnail images */}
+                  <div className="flex gap-3 overflow-x-auto p-2 scrollbar-hide snap-x">
                     {car.images.map((image, index) => (
                       <motion.button
                         key={index}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        onClick={() => setSelectedImage(image)}
-                        className={`rounded-xl overflow-hidden border-2 transition-all duration-300 ${selectedImage === image ? 'border-blue-500 scale-105' : 'border-gray-700 hover:border-gray-500'}`}
+                        onClick={() => setImgIndex(index)}
+                        className={`flex-shrink-0 snap-start w-20 h-14 md:w-24 md:h-18 rounded-xl overflow-hidden border-2 transition-all duration-300 ${imgIndex === index ? 'border-blue-500 scale-105 shadow-[0_0_10px_rgba(59,130,246,0.5)]' : 'border-gray-700 hover:border-gray-500'}`}
                       >
-                        <img src={image} alt={`View ${index + 1}`} className="w-full h-14 md:h-18 object-cover" />
+                        <img src={image} className="w-full h-full object-cover" />
                       </motion.button>
                     ))}
                   </div>
@@ -281,28 +351,36 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
                   </div>
 
                   <div className="mb-4">
-                    <h3 className="text-lg font-bold mb-3 text-gray-300">Description</h3>
-                    <p className="text-gray-400 leading-relaxed text-sm">{car.description}</p>
+                    <h3 className="text-lg font-bold mb-1 text-gray-300">Description</h3>
+                    <p className="text-gray-400 leading-relaxed text-sm mb-2">{car.description}</p>
+                    
+                    {/* GSMArena Style Database Link */}
+                      <a 
+                        href={technicalDbUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-blue-400 text-[11px] font-bold hover:underline flex items-center gap-1"
+                      >
+                        <FaFileAlt className="text-blue-400" /> Verify details on Auto-Data <FaExternalLinkAlt className="text-[9px]" />
+                      </a>
                   </div>
 
                   <div className="flex flex-col sm:flex-row gap-4">
-                    <motion.a
+                    <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      href={car.externalLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-3 rounded-xl font-bold hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-3 text-sm"
+                      onClick={handleVideoPlay}
+                      className="flex-1 bg-gradient-to-r from-red-600 to-pink-700 text-white py-3 rounded-xl font-bold hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-3 text-sm"
                     >
-                      <FaExternalLinkAlt /> View Online
-                    </motion.a>
+                      <FaPlay /> Watch Review Video
+                    </motion.button>
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={openWhatsApp}
                       className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 rounded-xl font-bold hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-3 text-sm"
                     >
-                      <FaWhatsapp className="text-xl" /> WhatsApp
+                      <FaWhatsapp className="text-xl" /> WhatsApp Agent
                     </motion.button>
                   </div>
                 </div>

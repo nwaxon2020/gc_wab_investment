@@ -155,7 +155,7 @@ export default function Home() {
         <div className='md:px-2 relative'>
           <CarHero />
 
-          <div className="z-50 absolute bottom-0 right-3 max-w-7xl mx-auto mb-2 flex justify-end items-center">
+          <div className="z-30 absolute bottom-0 right-3 max-w-7xl mx-auto mb-2 flex justify-end items-center">
             <span className="text-[10px] md:text-xs font-medium text-emerald-400">
               Cars you like : <span className="text-amber-400 font-bold">{likedCount}</span>
             </span>
