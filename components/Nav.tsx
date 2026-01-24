@@ -54,7 +54,7 @@ export default function Nav() {
         </div>
 
         {/* CENTER COLUMN: NAVIGATION LINKS (absolute centering logic) */}
-        <div className="hidden md:flex items-center justify-center space-x-18">
+        <div className="hidden md:flex items-center justify-center space-x-14">
           {navLinks.map((link) => (
             <Link 
               key={link.name} 
