@@ -1,12 +1,14 @@
 'use client';
 
 import { useState, useRef, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FaPlay, FaTimes, FaWhatsapp, FaExternalLinkAlt, 
-  FaCalendarAlt, FaCogs, FaSnowflake, FaHandshake, 
-  FaFileAlt, FaPalette, FaCouch, FaAward, FaHeart, FaRegHeart, 
+  FaCalendarAlt, FaCogs, FaHandshake, FaFileAlt,
+  FaPalette, FaCouch, FaAward, FaHeart, FaRegHeart, 
 } from 'react-icons/fa';
+import { GiGearStickPattern } from "react-icons/gi";
 
 interface Car {
   id: number | string;
@@ -25,6 +27,7 @@ interface CarCardProps {
 }
 
 const CarCard: React.FC<CarCardProps> = ({ car }) => {
+  const searchParams = useSearchParams();
   const [isHovered, setIsHovered] = useState<boolean>(false);
   const [showDetails, setShowDetails] = useState<boolean>(false);
   const [selectedImage, setSelectedImage] = useState<string>(car.images[0]);
@@ -32,11 +35,19 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
   const [isLiked, setIsLiked] = useState<boolean>(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  // Generate a stable random number for test display
   const totalLikes = useMemo(() => Math.floor(Math.random() * 500) + 1, []);
-
   const whatsappNumber = "+2347034632037";
   const whatsappMessage = `Hello! I'm interested in the ${car.name} ${car.model}. Please provide more details.`;
+
+  // NEW LOGIC: Check URL for ID and auto-open details
+  useEffect(() => {
+    const viewId = searchParams.get('view');
+    if (viewId && viewId === car.id.toString()) {
+      setShowDetails(true);
+      // Optional: Scroll to card
+      window.scrollTo({ top: 400, behavior: 'smooth' });
+    }
+  }, [searchParams, car.id]);
 
   useEffect(() => {
     const savedLikes = JSON.parse(localStorage.getItem('user_liked_cars') || '{}');
@@ -49,7 +60,6 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
   const toggleLike = (e: React.MouseEvent) => {
     e.stopPropagation();
     const savedLikes = JSON.parse(localStorage.getItem('user_liked_cars') || '{}');
-    
     if (isLiked) {
       delete savedLikes[car.id];
       setIsLiked(false);
@@ -61,19 +71,9 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
     window.dispatchEvent(new Event('likesUpdated'));
   };
 
-  const handleVideoPlay = () => {
-    setIsVideoPlaying(true);
-    videoRef.current?.play();
-  };
-
-  const handleVideoClose = () => {
-    setIsVideoPlaying(false);
-    videoRef.current?.pause();
-  };
-
-  const openWhatsApp = () => {
-    window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`, '_blank');
-  };
+  const handleVideoPlay = () => { setIsVideoPlaying(true); videoRef.current?.play(); };
+  const handleVideoClose = () => { setIsVideoPlaying(false); videoRef.current?.pause(); };
+  const openWhatsApp = () => { window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`, '_blank'); };
 
   return (
     <>
@@ -86,7 +86,7 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <div className="relative h-28 md:h-48 overflow-hidden">
+        <div className="relative h-38 md:h-48 overflow-hidden">
           <motion.img
             src={isHovered && car.images[1] ? car.images[1] : car.images[0]}
             alt={car.name}
@@ -103,11 +103,7 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
               onClick={toggleLike}
               className="bg-black/40 backdrop-blur-md p-2 rounded-full border border-white/10 transition-colors"
             >
-              {isLiked ? (
-                <FaHeart className="text-red-500 text-sm" />
-              ) : (
-                <FaRegHeart className="text-white text-sm" />
-              )}
+              {isLiked ? <FaHeart className="text-red-500 text-sm" /> : <FaRegHeart className="text-white text-sm" />}
             </motion.button>
             <span className="text-[9px] font-bold text-pink-200 mt-1 drop-shadow-md">
               {isLiked ? totalLikes + 1 : totalLikes}
@@ -123,31 +119,33 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
             <div className='flex hidden md:block'>View Details</div>
             <span className='md:hidden'>View</span>
           </motion.button>
-         
         </div>
 
-        <div className="p-2 md:p-4">
-          <div className="relative flex justify-between items-start mb-2.5 md:mb-3.5">
+        <div className="p-2 px-1.5 md:p-4">
+          <div className="relative flex justify-between items-start mb-1 md:mb-3.5">
             <div>
               <span className="md:hidden bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2 md:px-3 py-1 rounded-lg md:rounded-full text-[10px] md:text-sm md:font-bold">
                 ₦{car.price.toLocaleString()}
               </span>
-              <h3 className="text-sm md:text-xl font-semibold md:font-bold text-white pb-1">{car.name}</h3>
-              <p className="text-gray-400 text-xs md:text-sm">{car.model}</p>
+              <h3 className="text-sm md:text-lg font-semibold md:font-bold text-white pb-1 md:pb-0">
+                {car.name} {" "}
+                <small className="md:hidden font-medium text-gray-400 text-[11px] md:text-sm">{car.model}</small>
+              </h3>
+              <p className="hidden md:block text-gray-400 text-sm">{car.model}</p>
             </div>
             <span className="hidden md:block bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2 md:px-3 py-1 rounded-lg md:rounded-full text-[10px] md:text-sm md:font-bold">
               ₦{car.price.toLocaleString()}
             </span>
           </div>
 
-          <div className="grid grid-cols-2 gap-1 md:gap-2 mb-4">
+          <div className="grid grid-cols-2 gap-1 md:gap-2 mb-1 md:mb-4">
             {car.specs.slice(0, 4).map((spec, index) => (
               <div key={index} className="flex items-center gap-1 md:gap-2 text-gray-300">
                 {index === 0 && <><FaCalendarAlt className="text-blue-400" /><span className='hidden md:block text-[10px] md:text-sm'>Year:</span></>}
                 {index === 1 && <><FaCogs className="text-green-400" /><span className='hidden md:block text-[10px] md:text-sm'>Engine:</span></>}
-                {index === 2 && <><FaSnowflake className="text-cyan-400" /><span className='hidden md:block text-[10px] md:text-sm'>AC:</span></>}
-                {index === 3 && <><FaHandshake className="text-amber-400" /><span className='hidden md:block text-[10px] md:text-sm'>Con:</span></>}
-                <span className="text-[goldenrod] md:text-white text-xs md:text-sm truncate">{spec}</span>
+                {index === 2 && <><FaHandshake className="text-amber-400" /><span className='hidden text-[10px] md:text-sm'>Con:</span></>}
+                {index === 3 && <><GiGearStickPattern className="text-cyan-400" /><span className='hidden md:block text-[10px] md:text-sm'>Type:</span></>}
+                <span className="text-[goldenrod] md:text-white text-[10.5px] md:text-sm truncate">{spec}</span>
               </div>
             ))}
           </div>
@@ -159,7 +157,7 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
               onClick={openWhatsApp}
               className="col-span-2 md:col-span-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white py-1 md:py-2 rounded-lg font-bold hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
             >
-              <FaWhatsapp className="text-xl" />
+              <FaWhatsapp className="text-xl" /> <span className='text-sm hidden md:flex'>Contact Us</span>
             </motion.button>
             
             <motion.button
@@ -269,8 +267,8 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
                           <div className="flex items-center gap-2 opacity-60 text-[10px] uppercase font-bold tracking-wider">
                             {index === 0 && <><FaCalendarAlt />Year: </>}
                             {index === 1 && <><FaCogs />Engine: </>}
-                            {index === 2 && <><FaSnowflake />Air Con: </>}
-                            {index === 3 && <><FaHandshake />Condition: </>}
+                            {index === 2 && <><GiGearStickPattern />Condition: </>}
+                            {index === 3 && <><FaHandshake />Transmition: </>}
                             {index === 4 && <><FaFileAlt />Custom: </>}
                             {index === 5 && <><FaPalette />Exterior: </>}
                             {index === 6 && <><FaCouch />Interior: </>}

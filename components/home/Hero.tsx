@@ -87,7 +87,7 @@ export default function Hero({ activeTab, isLoaded, setActiveTab }: HeroProps) {
               isCars ? 'justify-start' : 'justify-end'
             }`}
           >
-            <Link href="/(car)/cars">
+            <Link href="/cars">
               <button
                 onClick={() => setActiveTab('cars')}
                 className="px-6 py-2 rounded-full bg-white/20 backdrop-blur-md text-white border border-white/30 hover:bg-white/40 transition-all text-sm font-semibold uppercase tracking-wider"

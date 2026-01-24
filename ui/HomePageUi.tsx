@@ -15,9 +15,9 @@ export default function Home() {
   }, [])
 
   const carImages = [
-    'https://images.unsplash.com/photo-1553440569-bcc63803a83d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1503376780353-7e6692767b70?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+    "https://hips.hearstapps.com/hmg-prod/images/2026-toyota-camry-se-hybrid-nightshade-fwd-155-695bf27312d0c.jpg?crop=0.766xw:0.643xh;0.161xw,0.260xh&resize=1200:*",
+    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQfVK-e56gp2cu8L7zZ61b1JPq5WIDV2WL2aA&s",
+    "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=800",
   ]
 
   const fashionImages = [
@@ -28,19 +28,14 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[#f0fdf4] font-sans overflow-hidden">
-      {/* Background decorative elements */}
       <div className="fixed inset-0 z-0">
         <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-gradient-to-br from-[#16a34a]/10 to-transparent blur-3xl animate-float" />
         <div className="absolute bottom-0 left-0 w-96 h-96 rounded-full bg-gradient-to-tr from-[#14532d]/5 to-transparent blur-3xl animate-float-reverse" />
       </div>
 
-
-      {/* HERO COMPONENT */}
       <Hero activeTab={activeTab} isLoaded={isLoaded} setActiveTab={setActiveTab} />
 
-      {/* MAIN CONTENT */}
-      <main className="relative z-10 container mx-auto  sm:px-6 lg:px-8 pt-8 pb-6 md:pb-16">
-        {/* Tabs Navigation */}
+      <main className="relative z-10 container mx-auto sm:px-6 lg:px-8 pt-8 pb-6 md:pb-16">
         <div className="px-3 flex justify-center mb-12">
           <div className="inline-flex rounded-2xl p-1 bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
             <button
@@ -56,14 +51,12 @@ export default function Home() {
               className={`px-8 py-4 rounded-xl text-lg font-semibold transition-all duration-300 ${activeTab === 'fashion' ? 'text-white shadow-lg' : 'text-gray-600 hover:text-gray-900'}`}
               style={{ backgroundColor: activeTab === 'fashion' ? '#14532d' : 'transparent' }}
             >
-              
-               <span className='hidden md:block'><i className="fas fa-tshirt mr-3"></i> Fashion Collection</span>
+              <span className='hidden md:block'><i className="fas fa-tshirt mr-3"></i> Fashion Collection</span>
               <span className='md:hidden'><i className="fas fa-tshirt mr-3"></i> Fashion</span>
             </button>
           </div>
         </div>
 
-        {/* Section Content */}
         <div className="px-4 grid lg:grid-cols-2 gap-12 mb-16">
           <div className={`transition-all duration-700 ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}>
             <div className="bg-white rounded-3xl p-8 shadow-2xl border border-gray-100 h-full">
@@ -92,12 +85,15 @@ export default function Home() {
             <div className="grid grid-cols-2 gap-4 h-full">
               {(activeTab === 'cars' ? carImages : fashionImages).map((src, index) => (
                 <div key={index} className={`relative overflow-hidden rounded-2xl ${index === 0 ? 'col-span-2 h-64' : 'h-48'}`}>
-                  <img src={src} className="w-full h-full object-cover transform hover:scale-110 transition-transform duration-700" alt="Item" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+                  {/* Logic: Click image to go to cars page and auto-open details for ID 1, 2, or 3 */}
+                  <Link href={activeTab === 'cars' ? `/cars?view=${index + 1}` : `/shop/${index}`}>
+                    <img src={src} className="w-full h-full object-cover transform hover:scale-110 transition-transform duration-700 cursor-pointer" alt="Item" />
+                  </Link>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent pointer-events-none"></div>
                   
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/20">
                     <Link 
-                      href={activeTab === 'cars' ? `/cars/${index}` : `/shop/${index}`}
+                      href={activeTab === 'cars' ? `/cars?view=${index + 3}` : `/shop/${index}`}
                       className="bg-white text-[#14532d] px-6 py-2 rounded-full font-bold shadow-lg transform translate-y-2 hover:translate-y-0 transition-transform"
                     >
                       {activeTab === 'cars' ? 'View More' : 'Pick Up'}
@@ -109,7 +105,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* DYNAMIC REDIRECT BUTTON */}
         <div className="px-4 mx-auto mt-auto max-w-xs text-center">
             <Link 
                 href={activeTab === 'cars' ? '/cars' : '/fashion'}
@@ -120,19 +115,16 @@ export default function Home() {
                 <i className="fas fa-arrow-right ml-3 text-sm"></i>
             </Link>
         </div>
-
       </main>
 
-        {/* 🔥 NEWS SECTION ADDED BEFORE FOOTER */}
-        <div className="mb-16 border-t border-gray-200">
-            <News category={activeTab} />
-        </div>
+      <div className="mb-16 border-t border-gray-200">
+          <News category={activeTab} />
+      </div>
 
-        {/* SPLIT FEATURE SECTION */}
-        <div className='bg-gray-900 py-4'>
-            <SplitFeature/>
-            <div></div>
-        </div>
+      <div className='bg-gray-900 py-4'>
+          <SplitFeature/>
+          <div></div>
+      </div>
     </div>
   )
 }
