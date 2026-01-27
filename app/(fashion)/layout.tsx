@@ -1,14 +1,25 @@
-// app/(cars)/layout.tsx
+// app/layout.tsx
+import type { Metadata } from 'next'
+import { CartProvider } from '@/components/fashion/CartContext' 
 
-export default function FashionLayout({
+
+export const metadata: Metadata = {
+  title: 'Fashion Boutique',
+  description: 'Premium Clothing Store',
+}
+
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
   return (
-    <section>
-      {/* You can add a specific sidebar or nav for cars here */}
-      {children}
+  
+    <section >
+      <CartProvider> 
+        {children}
+      </CartProvider>
     </section>
+   
   )
 }

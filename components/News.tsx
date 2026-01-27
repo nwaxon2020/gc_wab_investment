@@ -25,7 +25,7 @@ export default function News({ category: propCategory }: NewsProps) {
   // 🔥 LOGIC: Detect category from URL or use the passed prop
   const activeCategory = pathname.includes('car') 
     ? 'cars' 
-    : pathname.includes('fashion') 
+    : pathname.includes('shop') 
     ? 'fashion' 
     : propCategory || 'cars'
 

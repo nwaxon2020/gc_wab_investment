@@ -32,7 +32,7 @@ export default function Nav() {
   const navLinks = [
     { name: 'Home', href: '/' },
     { name: 'Cars', href: '/cars' },
-    { name: 'Fashion', href: '/fashion' },
+    { name: 'Fashion', href: '/shop' },
     { name: 'About', href: '/about' },
   ]
 
@@ -45,9 +45,9 @@ export default function Nav() {
         {/* LEFT COLUMN: LOGO (flex-1 ensures it takes equal space to the right col) */}
         <div className="flex-1 flex items-center">
           <Link href="/" className="flex items-center shrink-0">
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-full mr-3 bg-[#16a34a]"></div>
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-full mr-3 bg-emerald-700"></div>
             <div className="flex flex-col">
-              <h1 className="text-xl md:text-2xl font-extrabold tracking-tighter text-[#14532d]">GC WAB</h1>
+              <h1 className="text-xl md:text-2xl font-extrabold tracking-tighter text-emerald-700">GC WAB</h1>
               <span className="text-[9px] text-gray-400 uppercase tracking-widest leading-none">Investments</span>
             </div>
           </Link>
@@ -59,7 +59,7 @@ export default function Nav() {
             <Link 
               key={link.name} 
               href={link.href} 
-              className={`text-xs uppercase font-bold tracking-widest transition-colors duration-300 ${pathname === link.href ? 'text-[#16a34a]' : 'text-gray-500 hover:text-[#14532d]'}`}
+              className={`text-xs uppercase font-bold tracking-widest transition-colors duration-300 ${pathname === link.href ? 'text-emerald-700' : 'text-gray-500 hover:text-[#14532d]'}`}
             >
               {link.name}
             </Link>
@@ -71,17 +71,17 @@ export default function Nav() {
           {/* DESKTOP PROFILE */}
           <div className="hidden md:block">
             {!user ? (
-              <button onClick={handleGoogleLogin} className="bg-[#14532d] text-white px-7 py-3 rounded-2xl text-xs font-bold uppercase shadow-lg hover:bg-[#1b6639] transition-all">Sign In</button>
+              <button onClick={handleGoogleLogin} className="bg-emerald-700 text-white px-7 py-3 rounded-2xl text-xs font-bold uppercase shadow-lg hover:bg-[#1b6639] transition-all">Sign In</button>
             ) : (
               <div className="relative">
                 <button onClick={() => setIsProfileOpen(!isProfileOpen)} className="flex items-center gap-4 pl-6 group">
                   <div className="text-right hidden xl:block leading-tight">
-                    <p className="text-[10px] font-bold text-[#14532d] uppercase">{isAdmin ? 'Admin' : user.displayName?.split(' ')[0]}</p>
+                    <p className="text-[10px] font-bold text-emerald-700 uppercase">{isAdmin ? 'Admin' : user.displayName?.split(' ')[0]}</p>
                   </div>
                   <img 
                     src={isAdmin ? adminPlaceholder : user.photoURL} 
                     referrerPolicy="no-referrer"
-                    className="w-10 h-10 rounded-full border-2 border-[#16a34a] object-cover shadow-sm group-hover:scale-105 transition-transform" 
+                    className="w-10 h-10 rounded-full border-2 border-emerald-700 object-cover shadow-sm group-hover:scale-105 transition-transform" 
                     alt="avatar"
                   />
                 </button>

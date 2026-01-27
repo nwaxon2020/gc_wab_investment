@@ -1,3 +1,5 @@
+import ShopPageUi from "@/ui/FashionPageUi";
+
 export default function ShopPage() {
-    return <div>Shop Page</div>
+    return <ShopPageUi/>
 }

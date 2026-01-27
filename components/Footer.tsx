@@ -112,7 +112,7 @@ export default function Footer() {
                         <h4 className="text-[10px] font-black text-[#16a34a] uppercase tracking-[0.3em] mb-2">Explore</h4>
                         <Link href="/" className="text-sm font-bold hover:text-white transition-colors">Home</Link>
                         <Link href="/cars" className="text-sm font-bold hover:text-white transition-colors">Luxury Cars</Link>
-                        <Link href="/fashion" className="text-sm font-bold hover:text-white transition-colors">Fashion Store</Link>
+                        <Link href="/shop" className="text-sm font-bold hover:text-white transition-colors">Fashion Store</Link>
                     </div>
 
                     <div className="flex flex-col space-y-4">

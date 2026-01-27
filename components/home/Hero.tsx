@@ -96,7 +96,7 @@ export default function Hero({ activeTab, isLoaded, setActiveTab }: HeroProps) {
               </button>
             </Link>
 
-            <Link href="/(fashion)/shop">
+            <Link href="/shop">
               <button
                 onClick={() => setActiveTab('fashion')}
                 className={`px-6 py-2 rounded-full backdrop-blur-md border transition-all text-sm font-semibold uppercase tracking-wider ${

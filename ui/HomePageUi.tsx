@@ -107,7 +107,7 @@ export default function Home() {
 
         <div className="px-4 mx-auto mt-auto max-w-xs text-center">
             <Link 
-                href={activeTab === 'cars' ? '/cars' : '/fashion'}
+                href={activeTab === 'cars' ? '/cars' : '/shop'}
                 className="inline-flex items-center px-10 py-4 rounded-2xl text-white text-lg font-bold shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 active:scale-95"
                 style={{ backgroundColor: '#14532d' }}
             >
