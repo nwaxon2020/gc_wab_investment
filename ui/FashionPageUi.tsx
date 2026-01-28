@@ -33,6 +33,7 @@ export default function ShopPageUi() {
 
                     {/* 3. Pass the filter states into the Product Grid */}
                     <div>
+                        <div id='shophere'/>
                         <ProductGrid 
                             products={products} 
                             searchTerm={searchTerm} 

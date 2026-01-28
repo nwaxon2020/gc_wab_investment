@@ -80,6 +80,7 @@ export default function SplitFeature() {
                 key={imgIdx}
                 src={img}
                 alt={section.title}
+                loading="lazy"
                 className={`absolute inset-0 w-full h-full object-cover transform transition-opacity duration-1000 ease-in-out ${
                   imgIdx === currentIdx ? 'opacity-100 scale-105' : 'opacity-0'
                 }`}

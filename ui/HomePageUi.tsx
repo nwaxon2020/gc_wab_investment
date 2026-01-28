@@ -14,16 +14,26 @@ export default function Home() {
     setIsLoaded(true)
   }, [])
 
-  const carImages = [
-    "https://hips.hearstapps.com/hmg-prod/images/2026-toyota-camry-se-hybrid-nightshade-fwd-155-695bf27312d0c.jpg?crop=0.766xw:0.643xh;0.161xw,0.260xh&resize=1200:*",
-    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQfVK-e56gp2cu8L7zZ61b1JPq5WIDV2WL2aA&s",
-    "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=800",
+  // DYNAMIC DATA: Each image is now tied to a specific ID
+  const carData = [
+    { 
+      id: 1, 
+      src: "https://hips.hearstapps.com/hmg-prod/images/2026-toyota-camry-se-hybrid-nightshade-fwd-155-695bf27312d0c.jpg?crop=0.766xw:0.643xh;0.161xw,0.260xh&resize=1200:*" 
+    },
+    { 
+      id: 2, 
+      src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQfVK-e56gp2cu8L7zZ61b1JPq5WIDV2WL2aA&s" 
+    },
+    { 
+      id: 5, 
+      src: "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=800" 
+    },
   ]
 
-  const fashionImages = [
-    'https://images.unsplash.com/photo-1445205170230-053b83016050?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+  const fashionData = [
+    { id: 'f1', src: 'https://images.unsplash.com/photo-1445205170230-053b83016050?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
+    { id: 'f2', src: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
+    { id: 'f3', src: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' }
   ]
 
   return (
@@ -83,17 +93,23 @@ export default function Home() {
 
           <div className={`transition-all duration-700 delay-300 ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}`}>
             <div className="grid grid-cols-2 gap-4 h-full">
-              {(activeTab === 'cars' ? carImages : fashionImages).map((src, index) => (
+              {(activeTab === 'cars' ? carData : fashionData).map((item, index) => (
                 <div key={index} className={`relative overflow-hidden rounded-2xl ${index === 0 ? 'col-span-2 h-64' : 'h-48'}`}>
-                  {/* Logic: Click image to go to cars page and auto-open details for ID 1, 2, or 3 */}
-                  <Link href={activeTab === 'cars' ? `/cars?view=${index + 1}` : `/shop/${index}`}>
-                    <img src={src} loading="lazy" className="w-full h-full object-cover transform hover:scale-110 transition-transform duration-700 cursor-pointer" alt="Item" />
+                  
+                  {/* DYNAMIC LOGIC: Link uses the ID defined in the carData object above */}
+                  <Link href={activeTab === 'cars' ? `/cars?view=${item.id}` : `/shop#shophere`}>
+                    <img 
+                      src={item.src} 
+                      loading="lazy" 
+                      className="w-full h-full object-cover transform hover:scale-110 transition-transform duration-700 cursor-pointer" 
+                      alt="Item" 
+                    />
                   </Link>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent pointer-events-none"></div>
                   
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/20">
                     <Link 
-                      href={activeTab === 'cars' ? `/cars?view=${index + 3}` : `/shop/${index}`}
+                      href={activeTab === 'cars' ? `/cars?view=${item.id}` : `/shop#shophere`}
                       className="bg-white text-[#14532d] px-6 py-2 rounded-full font-bold shadow-lg transform translate-y-2 hover:translate-y-0 transition-transform"
                     >
                       {activeTab === 'cars' ? 'View More' : 'Pick Up'}
@@ -123,7 +139,6 @@ export default function Home() {
 
       <div className='bg-gray-900 py-4'>
           <SplitFeature/>
-          <div></div>
       </div>
     </div>
   )
