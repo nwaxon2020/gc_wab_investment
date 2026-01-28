@@ -29,6 +29,7 @@ export default function Hero({ activeTab, isLoaded, setActiveTab }: HeroProps) {
           <img
             src={bg.cars}
             alt="Cars"
+            loading="lazy"
             className="w-full h-full object-cover transition-opacity duration-1000"
             style={{ opacity: isCars ? 1 : 0.5 }}
           />

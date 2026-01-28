@@ -110,7 +110,7 @@ export default function ProductDetailOverlay({ product, onClose, onAddToCart }: 
         <button onClick={onClose} className="absolute top-4 right-4 z-[80] bg-white/90 text-emerald-900 p-3 rounded-full shadow-lg hover:bg-emerald-50 transition-colors"><FaTimes size={20} /></button>
         <div className="w-full md:w-1/2 bg-gray-50 flex flex-col shrink-0 border-none outline-none">
           <div className="relative h-[40vh] md:h-full overflow-hidden cursor-zoom-in min-h-[300px]" onClick={() => setIsLightboxOpen(true)} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}>
-            <img src={allGalleryImages[selectedImage]} alt={product.name} className="w-full h-full object-cover" />
+            <img src={allGalleryImages[selectedImage]} alt={product.name} loading="lazy" className="w-full h-full object-cover" />
             <div className="hidden md:flex absolute inset-0 items-center justify-between px-4 opacity-0 hover:opacity-100 transition-opacity">
               <button onClick={(e) => { e.stopPropagation(); prevImage(); }} className="p-2 bg-white/80 rounded-full hover:bg-white text-emerald-900"><FaChevronLeft /></button>
               <button onClick={(e) => { e.stopPropagation(); nextImage(); }} className="p-2 bg-white/80 rounded-full hover:bg-white text-emerald-900"><FaChevronRight /></button>
@@ -118,7 +118,7 @@ export default function ProductDetailOverlay({ product, onClose, onAddToCart }: 
           </div>
           <div className="p-4 flex gap-2 overflow-x-auto no-scrollbar bg-white">
             {allGalleryImages.map((image, index) => (
-              <button key={index} onClick={() => setSelectedImage(index)} className={`w-14 h-14 md:w-16 md:h-16 shrink-0 rounded-xl overflow-hidden border-2 transition-colors ${selectedImage === index ? 'border-emerald-600' : 'border-transparent opacity-70'}`}><img src={image} alt="thumb" className="w-full h-full object-cover" /></button>
+              <button key={index} onClick={() => setSelectedImage(index)} className={`w-14 h-14 md:w-16 md:h-16 shrink-0 rounded-xl overflow-hidden border-2 transition-colors ${selectedImage === index ? 'border-emerald-600' : 'border-transparent opacity-70'}`}><img src={image} alt="thumb" loading="lazy" className="w-full h-full object-cover" /></button>
             ))}
           </div>
         </div>
@@ -176,7 +176,7 @@ export default function ProductDetailOverlay({ product, onClose, onAddToCart }: 
         <div className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center" onClick={() => setIsLightboxOpen(false)}>
           <button className="absolute top-6 right-6 text-white z-[110]"><FaTimes size={32} /></button>
           <button onClick={(e) => { e.stopPropagation(); prevImage(); }} className="absolute left-4 md:left-10 text-white/50 hover:text-white"><FaChevronLeft size={48} /></button>
-          <img src={allGalleryImages[selectedImage]} alt="Fullscreen" className="max-w-full max-h-screen object-contain" />
+          <img src={allGalleryImages[selectedImage]} alt="Fullscreen" loading="lazy" className="max-w-full max-h-screen object-contain" />
           <button onClick={(e) => { e.stopPropagation(); nextImage(); }} className="absolute right-4 md:right-10 text-white/50 hover:text-white"><FaChevronRight size={48} /></button>
         </div>
       )}

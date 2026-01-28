@@ -106,6 +106,7 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
           <motion.img
             src={isHovered && car.images[1] ? car.images[1] : car.images[0]}
             alt={car.name}
+            loading="lazy"
             className="w-full h-[10rem] md:h-full object-cover"
             animate={{ scale: isHovered ? 1.1 : 1 }}
             transition={{ duration: 0.5 }}

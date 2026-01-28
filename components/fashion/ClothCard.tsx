@@ -79,7 +79,7 @@ export default function ClothCard({ product }: ProductCardProps) {
         </button>
 
         <div className="relative h-42 md:h-65 overflow-hidden cursor-pointer" onClick={() => setShowDetailOverlay(true)}>
-          <img src={displayedImage} alt={product.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+          <img src={displayedImage} alt={product.name} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
           
           <div className={`hidden md:flex flex-col gap-2 absolute inset-0 bg-emerald-900/20 items-center justify-center transition-opacity duration-300 ${hover ? 'opacity-100' : 'opacity-0'}`}>
             <p className="text-white text-[10px] font-bold uppercase tracking-widest transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">Available Sizes</p>

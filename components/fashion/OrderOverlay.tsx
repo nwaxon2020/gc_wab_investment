@@ -73,6 +73,7 @@ export default function OrderOverlay({ product, onClose, initialColorIndex = 0 }
               <img 
                 src={product.colors[selectedColorIndex].imageUrl} 
                 alt={product.name} 
+                loading="lazy"
                 className="w-full h-full object-cover transition-opacity duration-300" 
               />
             </div>

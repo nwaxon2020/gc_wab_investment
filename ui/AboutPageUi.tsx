@@ -13,6 +13,7 @@ export default function AboutPageUi() {
            <img 
             src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&q=80&w=1920" 
             alt="Luxury Car" 
+            loading="lazy"
             className="w-full h-full object-cover"
           />
         </div>
@@ -70,6 +71,7 @@ export default function AboutPageUi() {
                 src="/ceo3.png" 
                 alt="CEO of GC WAB" 
                 className="w-full h-full object-cover"
+                loading="lazy"
               />
               <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/80 to-transparent text-white">
                 <h3 className="text-2xl font-black uppercase tracking-tighter">Your Name</h3>

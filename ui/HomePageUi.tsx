@@ -87,7 +87,7 @@ export default function Home() {
                 <div key={index} className={`relative overflow-hidden rounded-2xl ${index === 0 ? 'col-span-2 h-64' : 'h-48'}`}>
                   {/* Logic: Click image to go to cars page and auto-open details for ID 1, 2, or 3 */}
                   <Link href={activeTab === 'cars' ? `/cars?view=${index + 1}` : `/shop/${index}`}>
-                    <img src={src} className="w-full h-full object-cover transform hover:scale-110 transition-transform duration-700 cursor-pointer" alt="Item" />
+                    <img src={src} loading="lazy" className="w-full h-full object-cover transform hover:scale-110 transition-transform duration-700 cursor-pointer" alt="Item" />
                   </Link>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent pointer-events-none"></div>
                   
