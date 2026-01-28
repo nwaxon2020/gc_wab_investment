@@ -13,11 +13,15 @@ export default function CartSidebar() {
 
   const handleClearCart = () => {
     clearCart();
-    // FIXED: Key now matches the one in CartContext.tsx
     if (typeof window !== 'undefined') {
       localStorage.removeItem('gc_wab_cart');
     }
     setShowClearConfirm(false);
+  };
+
+  // Helper for Naira Formatting
+  const formatNaira = (amount: number) => {
+    return amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
 
   return (
@@ -25,7 +29,7 @@ export default function CartSidebar() {
       {/* Floating Cart Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed top-24 right-4 z-40 bg-emerald-800 text-white p-4 rounded-full shadow-xl hover:bg-emerald-600 transition-all duration-300 hover:scale-110 active:scale-95"
+        className="fixed top-20 right-3 md:top-24 z-40 bg-emerald-800 text-white p-4 rounded-full shadow-xl hover:bg-emerald-600 transition-all duration-300 hover:scale-110 active:scale-95"
       >
         <div className="relative">
           <FaShoppingCart size={24} />
@@ -44,14 +48,14 @@ export default function CartSidebar() {
           onClick={() => setIsOpen(false)}
         />
 
-        <div className={`absolute inset-y-0 right-0 w-full md:w-[350px] bg-[#1a1a1a] shadow-2xl transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1) flex flex-col ${
+        <div className={`absolute inset-y-0 right-0 w-full md:w-[350px] bg-[#1a1a1a] shadow-2xl transition-transform duration-500 flex flex-col ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}>
           
           <div className="flex justify-between items-center p-6 border-b border-white/5 shrink-0">
             <div className="flex items-center gap-3">
-              <FaShoppingCart className="text-fashion-pink" />
-              <h2 className="text-lg font-bold text-white tracking-tight">Your Cart</h2>
+              <FaShoppingCart className="text-emerald-500" />
+              <h2 className="text-lg font-bold text-white tracking-tight">Your Cart Items</h2>
               <span className="bg-red-800 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">
                 {itemCount}
               </span>
@@ -89,11 +93,30 @@ export default function CartSidebar() {
                         <p className="text-[10px] text-gray-400 mt-0.5 uppercase font-medium">{item.color} | {item.size}</p>
                       </div>
                       <div className="flex items-center justify-between mt-2">
-                        <span className="font-bold text-sm" style={{ color: 'goldenrod' }}>${item.price.toFixed(2)}</span>
+                        {/* FIXED: Naira Formatting */}
+                        <span className="font-bold text-sm" style={{ color: 'goldenrod' }}>₦{formatNaira(item.price)}</span>
+                        
                         <div className="flex items-center bg-black/30 rounded-lg border border-white/5">
-                          <button onClick={() => updateQuantity(item.productId, item.size, item.color, item.quantity - 1)} className="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-white"><FaMinus size={7} /></button>
+                          {/* FIXED: Logic to prevent quantity < 1 */}
+                          <button 
+                            onClick={() => {
+                              if (item.quantity > 1) {
+                                updateQuantity(item.productId, item.size, item.color, item.quantity - 1)
+                              }
+                            }} 
+                            className={`w-6 h-6 flex items-center justify-center transition-colors ${item.quantity > 1 ? 'text-gray-400 hover:text-white' : 'text-gray-700 cursor-not-allowed'}`}
+                          >
+                            <FaMinus size={7} />
+                          </button>
+                          
                           <span className="px-2 text-[10px] font-bold text-gray-300">{item.quantity}</span>
-                          <button onClick={() => updateQuantity(item.productId, item.size, item.color, item.quantity + 1)} className="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-white"><FaPlus size={7} /></button>
+                          
+                          <button 
+                            onClick={() => updateQuantity(item.productId, item.size, item.color, item.quantity + 1)} 
+                            className="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-white"
+                          >
+                            <FaPlus size={7} />
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -107,7 +130,8 @@ export default function CartSidebar() {
             <div className="p-6 bg-[#1a1a1a] border-t border-white/5 shrink-0">
               <div className="flex justify-between items-center mb-6">
                 <span className="text-gray-400 text-xs font-bold uppercase tracking-widest">Total</span>
-                <span className="text-xl font-black text-white">${totalAmount.toFixed(2)}</span>
+                {/* FIXED: Naira Formatting */}
+                <span className="text-xl font-black text-white">₦{formatNaira(totalAmount)}</span>
               </div>
               <div className="space-y-3">
                 <Link
@@ -119,7 +143,7 @@ export default function CartSidebar() {
                 </Link>
                 <button 
                   onClick={() => setShowClearConfirm(true)} 
-                  className="font-semibold md:font-black w-full text-[9px] font-bold text-gray-500 hover:text-red-400 uppercase tracking-widest transition-colors"
+                  className="font-semibold md:font-black w-full text-[9px] text-gray-500 hover:text-red-400 uppercase tracking-widest transition-colors"
                 >
                   Clear Cart
                 </button>
@@ -129,6 +153,7 @@ export default function CartSidebar() {
         </div>
       </div>
 
+      {/* Confirmation Modal */}
       {showClearConfirm && (
         <div className="mx-auto fixed inset-0 z-[200] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setShowClearConfirm(false)} />

@@ -3,11 +3,11 @@ import { useState, useEffect } from 'react'
 import { auth, db } from '@/lib/firebaseConfig'
 import { isMasterAdmin } from '@/lib/admin'
 import { 
-  signInWithEmailAndPassword, 
-  signOut, 
-  onAuthStateChanged, 
-  GoogleAuthProvider, 
-  signInWithPopup 
+    signInWithEmailAndPassword, 
+    signOut, 
+    onAuthStateChanged, 
+    GoogleAuthProvider, 
+    signInWithPopup 
 } from 'firebase/auth'
 import { doc, getDoc, setDoc } from 'firebase/firestore'
 import { toast } from 'sonner'
@@ -20,7 +20,13 @@ export default function Footer() {
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
 
-    // 1. SYNC LOGIC: Listen for auth changes from anywhere in the app
+    // DYNAMIC SOCIAL LINKS: Twitter replaced with Facebook
+    const socialLinks = [
+        { name: 'instagram', url: 'https://www.instagram.com/nwaxon/', icon: 'fab fa-instagram' },
+        { name: 'tiktok', url: 'https://www.tiktok.com/@nomo_properties', icon: 'fab fa-tiktok' },
+        { name: 'facebook', url: 'https://www.facebook.com/nwaxonprincezy', icon: 'fab fa-facebook' },
+    ];
+
     useEffect(() => {
         const unsub = onAuthStateChanged(auth, (currentUser) => {
             setUser(currentUser)
@@ -28,7 +34,6 @@ export default function Footer() {
         return () => unsub()
     }, [])
 
-    // 2. GOOGLE LOGIN: Direct trigger for the Footer button
     const handleGoogleLogin = async () => {
         try {
             const provider = new GoogleAuthProvider()
@@ -41,7 +46,6 @@ export default function Footer() {
         }
     }
 
-    // 3. ADMIN EMAIL/PASS LOGIN
     const handleAdminLogin = async (e: React.FormEvent) => {
         e.preventDefault()
         setLoading(true)
@@ -65,17 +69,13 @@ export default function Footer() {
                 toast.success("Welcome back, Boss.")
                 setShowAdminOverlay(false)
 
-                // --- REDIRECTION LOGIC ---Admin 1 (Cars) & Admin 2 (Fashion)
                 if (uid === process.env.NEXT_PUBLIC_ADMIN_ID_1) {
                     window.location.href = '/car'
                 } else if (uid === process.env.NEXT_PUBLIC_ADMIN_ID_2) {
                     window.location.href = '/shop'
                 } else {
-                    // Default fallback if it's a master admin not specified above
                     window.location.href = '/'
                 }
-                // -------------------------
-
             } else {
                 toast.error("Access Denied.")
                 await signOut(auth)
@@ -92,22 +92,27 @@ export default function Footer() {
             <div className="container mx-auto px-4">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
                     
-                    {/* Brand & Socials */}
                     <div className="md:col-span-1">
                         <h3 className="text-3xl font-black text-[#16a34a] mb-4 tracking-tighter">GC WAB</h3>
                         <p className="text-sm font-medium leading-relaxed mb-6">
                             Redefining the standard of luxury investments in automotive and fashion.
                         </p>
+                        
                         <div className="flex space-x-4">
-                            {['instagram', 'tiktok', 'twitter'].map((icon) => (
-                                <a key={icon} href="#" className="w-11 h-11 rounded-2xl bg-white/5 flex items-center justify-center hover:bg-[#16a34a] hover:text-white transition-all duration-300 shadow-inner group">
-                                    <i className={`fab fa-${icon} text-lg group-hover:scale-110`}></i>
+                            {socialLinks.map((social) => (
+                                <a 
+                                    key={social.name} 
+                                    href={social.url} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="w-11 h-11 rounded-2xl bg-white/5 flex items-center justify-center hover:bg-[#16a34a] hover:text-white transition-all duration-300 shadow-inner group"
+                                >
+                                    <i className={`${social.icon} text-lg group-hover:scale-110`}></i>
                                 </a>
                             ))}
                         </div>
                     </div>
 
-                    {/* Navigation */}
                     <div className="flex flex-col space-y-4">
                         <h4 className="text-[10px] font-black text-[#16a34a] uppercase tracking-[0.3em] mb-2">Explore</h4>
                         <Link href="/" className="text-sm font-bold hover:text-white transition-colors">Home</Link>
@@ -121,7 +126,6 @@ export default function Footer() {
                         <a href="mailto:princenwachuwu308@yahoo.com" className="text-sm font-bold hover:text-white transition-colors">Contact Support</a>
                     </div>
 
-                    {/* Auth & Staff Portal */}
                     <div className="text-left md:text-right flex flex-col gap-12 md:gap-3 justify-between md:items-end">
                         <div className="space-y-4">
                             {!user ? (
@@ -150,15 +154,14 @@ export default function Footer() {
                     </div>
                 </div>
 
-                {/* Base Footer */}
                 <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
                     <p className="text-[10px] font-black text-[#16a34a] uppercase tracking-widest">
                         princenwachuwu308@yahoo.com
                     </p>
                     <div className='flex gap-5 md:gap-10 font-semibold text-xs md:text-sm uppercase tracking-wider'>
-                        <a href="/terms" className="hover:text-white transition-colors">Terms </a>
+                        <Link href="/terms" className="hover:text-white transition-colors">Terms </Link>
                         <p>&</p>
-                        <a href="/policy" className="hover:text-white transition-colors">Policy</a>
+                        <Link href="/policy" className="hover:text-white transition-colors">Policy</Link>
                     </div>
                     <div className="flex items-center gap-6 text-[10px] font-bold uppercase">
                         <p>© {new Date().getFullYear()} GC WAB</p>
@@ -168,7 +171,6 @@ export default function Footer() {
                 </div>
             </div>
 
-            {/* ADMIN OVERLAY */}
             {showAdminOverlay && (
                 <div className="mt-18 fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-md p-3">
                     <div className="bg-[#0f0f0f] w-full max-w-md rounded-[3rem] p-6 md:p-10 border border-white/10 shadow-[0_0_50px_rgba(22,163,74,0.1)] relative">

@@ -40,7 +40,7 @@ export default function Nav() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b-2 border-[#f0fdf4] shadow-md">
-      <nav className="container mx-auto px-4 h-22 flex justify-between items-center">
+      <nav className="container mx-auto px-4 h-15 md:h-18 flex justify-between items-center">
         
         {/* LEFT COLUMN: LOGO (flex-1 ensures it takes equal space to the right col) */}
         <div className="flex-1 flex items-center">

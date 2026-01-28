@@ -79,7 +79,7 @@ export default function HeroSection() {
                 <p className="text-xl mb-8 opacity-90">
                   {slide.description}
                 </p>
-                <button className="bg-fashion-pink text-white px-8 py-3 rounded-full font-semibold hover:bg-pink-600 transition-all duration-300 transform hover:scale-105 hover:shadow-xl">
+                <button className="bg-fashion-pink text-white px-8 py-3 rounded-full font-semibold">
                   {slide.buttonText}
                 </button>
               </div>
@@ -91,13 +91,13 @@ export default function HeroSection() {
       {/* Navigation buttons */}
       <button
         onClick={prevSlide}
-        className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/40 p-3 rounded-full transition-all duration-300"
+        className="hidden md:block absolute left-4 top-55 transform -translate-y-1/2 bg-white/20 hover:bg-white/40 p-3 rounded-full transition-all duration-300"
       >
         <FaChevronLeft className="text-white" />
       </button>
       <button
         onClick={nextSlide}
-        className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/40 p-3 rounded-full transition-all duration-300"
+        className="hidden md:block absolute right-4 top-55 transform -translate-y-1/2 bg-white/20 hover:bg-white/40 p-3 rounded-full transition-all duration-300"
       >
         <FaChevronRight className="text-white" />
       </button>
