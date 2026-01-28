@@ -18,10 +18,10 @@ export default function ShopPageUi() {
     return (
         <>
             <main className="min-h-screen">
-                
+
                 <FashionHeroSection />
                 
-                <div className="">
+                <div>
                     {/* 2. Connect the Filter Section to the states */}
                     <div>
                         <FiltersSection 
@@ -32,7 +32,7 @@ export default function ShopPageUi() {
                     </div>
 
                     {/* 3. Pass the filter states into the Product Grid */}
-                    <div className="px-1.5 md:px-6">
+                    <div>
                         <ProductGrid 
                             products={products} 
                             searchTerm={searchTerm} 
