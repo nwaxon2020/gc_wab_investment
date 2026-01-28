@@ -81,6 +81,7 @@ export default function News({ category: propCategory }: NewsProps) {
               <img 
                 src={article.urlToImage!} 
                 alt={article.title} 
+                loading="lazy"
                 className="w-full h-full object-cover grayscale-[0.3] group-hover:grayscale-0 transform group-hover:scale-105 transition-all duration-700" 
               />
               <div className="absolute top-3 left-3">
