@@ -10,11 +10,21 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<'cars' | 'fashion'>('cars')
   const [isLoaded, setIsLoaded] = useState(false)
 
+  // 1. Initial Load: Check localStorage for saved preference
   useEffect(() => {
+    const savedTab = localStorage.getItem('gc-wab-active-tab') as 'cars' | 'fashion'
+    if (savedTab) {
+      setActiveTab(savedTab)
+    }
     setIsLoaded(true)
   }, [])
 
-  // DYNAMIC DATA: Each image is now tied to a specific ID
+  // 2. Custom Setter: Saves to localStorage whenever tab changes
+  const handleTabChange = (tab: 'cars' | 'fashion') => {
+    setActiveTab(tab)
+    localStorage.setItem('gc-wab-active-tab', tab)
+  }
+
   const carData = [
     { 
       id: 1, 
@@ -43,13 +53,13 @@ export default function Home() {
         <div className="absolute bottom-0 left-0 w-96 h-96 rounded-full bg-gradient-to-tr from-[#14532d]/5 to-transparent blur-3xl animate-float-reverse" />
       </div>
 
-      <Hero activeTab={activeTab} isLoaded={isLoaded} setActiveTab={setActiveTab} />
+      <Hero activeTab={activeTab} isLoaded={isLoaded} setActiveTab={handleTabChange} />
 
       <main className="relative z-10 container mx-auto sm:px-6 lg:px-8 pt-8 pb-6 md:pb-16">
         <div className="px-3 flex justify-center mb-12">
           <div className="inline-flex rounded-2xl p-1 bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
             <button
-              onClick={() => setActiveTab('cars')}
+              onClick={() => handleTabChange('cars')}
               className={`px-8 py-4 rounded-xl text-lg font-semibold transition-all duration-300 ${activeTab === 'cars' ? 'text-white shadow-lg' : 'text-gray-600 hover:text-gray-900'}`}
               style={{ backgroundColor: activeTab === 'cars' ? '#14532d' : 'transparent' }}
             >
@@ -57,7 +67,7 @@ export default function Home() {
               <span className='md:hidden'><i className="fas fa-car mr-3"></i> Cars</span>
             </button>
             <button
-              onClick={() => setActiveTab('fashion')}
+              onClick={() => handleTabChange('fashion')}
               className={`px-8 py-4 rounded-xl text-lg font-semibold transition-all duration-300 ${activeTab === 'fashion' ? 'text-white shadow-lg' : 'text-gray-600 hover:text-gray-900'}`}
               style={{ backgroundColor: activeTab === 'fashion' ? '#14532d' : 'transparent' }}
             >
@@ -96,7 +106,6 @@ export default function Home() {
               {(activeTab === 'cars' ? carData : fashionData).map((item, index) => (
                 <div key={index} className={`relative overflow-hidden rounded-2xl ${index === 0 ? 'col-span-2 h-64' : 'h-48'}`}>
                   
-                  {/* DYNAMIC LOGIC: Link uses the ID defined in the carData object above */}
                   <Link href={activeTab === 'cars' ? `/cars?view=${item.id}` : `/shop#shophere`}>
                     <img 
                       src={item.src} 

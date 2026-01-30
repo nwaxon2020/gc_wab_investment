@@ -6,7 +6,7 @@ import Link from 'next/link'
 interface HeroProps {
   activeTab: 'cars' | 'fashion'
   isLoaded: boolean
-  setActiveTab: Dispatch<SetStateAction<'cars' | 'fashion'>>
+  setActiveTab: (tab: 'cars' | 'fashion') => void
 }
 
 export default function Hero({ activeTab, isLoaded, setActiveTab }: HeroProps) {
@@ -20,7 +20,6 @@ export default function Hero({ activeTab, isLoaded, setActiveTab }: HeroProps) {
   return (
     <div className="relative h-[60vh] min-h-[500px] overflow-hidden">
       <div className="absolute inset-0">
-
         {/* Cars Side */}
         <div
           className="absolute top-0 left-0 bottom-0 w-[55%] overflow-hidden"
@@ -67,7 +66,9 @@ export default function Hero({ activeTab, isLoaded, setActiveTab }: HeroProps) {
               isCars ? 'text-white' : 'text-gray-900'
             }`}
           >
-            GC WAB <span className="block text-[#16a34a]">INVESTMENTS</span>
+            GC WAB <span className="block text-[#16a34a] uppercase">
+                {isCars ? 'Premium Automobile' : 'Trending Outfits'}
+            </span>
           </h1>
 
           {isCars ? (
@@ -112,7 +113,6 @@ export default function Hero({ activeTab, isLoaded, setActiveTab }: HeroProps) {
           </div>
         </div>
       </div>
-      
     </div>
   )
 }

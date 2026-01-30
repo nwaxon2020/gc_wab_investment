@@ -1,24 +1,51 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { db } from '@/lib/firebaseConfig';
+import { doc, onSnapshot } from 'firebase/firestore';
 import { FaCalculator, FaCheckCircle, FaShieldAlt, FaLightbulb, FaPhoneAlt, FaDownload } from 'react-icons/fa';
 
 export default function EngagementSectionUi() {
   const [loanAmount, setLoanAmount] = useState(2000000);
   const [months, setMonths] = useState(12);
+  
+  // --- DYNAMIC CONFIG STATE WITH FALLBACKS ---
+  const [config, setConfig] = useState({
+    phoneNumber: "+2347034632037",
+    rate6m: 1.10,
+    rate12m: 1.15,
+    rate24m: 1.25,
+    rate36m: 1.35
+  });
 
-  const expertPhoneNumber = "+2347034632037";
+  // Fetch Live Config from Firestore
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, 'site_settings', 'engagement_config'), (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setConfig({
+          // Use DB value OR fallback to hardcoded original
+          phoneNumber: data.phoneNumber || "+2347034632037",
+          rate6m: data.rate6m || 1.10,
+          rate12m: data.rate12m || 1.15,
+          rate24m: data.rate24m || 1.25,
+          rate36m: data.rate36m || 1.35
+        });
+      }
+    });
+    return () => unsub();
+  }, []);
 
-  // --- LOGIC: DYNAMIC INTEREST CALCULATION ---
+  // --- LOGIC: DYNAMIC INTEREST CALCULATION USING CONFIG ---
   const monthlyPayment = useMemo(() => {
-    let interestMultiplier = 1.10; // Base 10% for 6 months
+    let interestMultiplier = config.rate6m; // Default to 6M rate
     
-    if (months === 12) interestMultiplier = 1.15; // 15% for 1 year
-    if (months === 24) interestMultiplier = 1.25; // 25% for 2 years
-    if (months === 36) interestMultiplier = 1.35; // 35% for 3 years
+    if (months === 12) interestMultiplier = config.rate12m;
+    if (months === 24) interestMultiplier = config.rate24m;
+    if (months === 36) interestMultiplier = config.rate36m;
 
     return Math.round((loanAmount * interestMultiplier) / months);
-  }, [loanAmount, months]);
+  }, [loanAmount, months, config]);
 
   const downloadChecklist = () => {
     const checklistContent = `
@@ -97,7 +124,7 @@ Generated from your Car Collection App.
               <span className="text-gray-400 text-xs uppercase block mb-1">Estimated Monthly Pay</span>
               <span className="text-2xl font-black text-emerald-400">₦{monthlyPayment.toLocaleString()}*</span>
               <p className="text-[10px] text-gray-500 mt-2 italic">
-                *Includes dynamic interest based on term.
+                *Includes dynamic interest based on term set by admin.
               </p>
             </div>
           </div>
@@ -152,7 +179,7 @@ Generated from your Car Collection App.
         </div>
         
         <a 
-          href={`tel:${expertPhoneNumber}`}
+          href={`tel:${config.phoneNumber}`}
           className="bg-white text-emerald-700 px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-tighter hover:scale-105 transition-transform flex items-center gap-3 shadow-xl"
         >
           <FaPhoneAlt />

@@ -3,6 +3,8 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { db } from '@/lib/firebaseConfig';
+import { doc, updateDoc, increment, onSnapshot, getDoc } from 'firebase/firestore';
 import { 
   FaPlay, FaTimes, FaWhatsapp, FaExternalLinkAlt, 
   FaCalendarAlt, FaCogs, FaHandshake, FaFileAlt,
@@ -19,7 +21,8 @@ interface Car {
   specs: string[];
   description: string;
   videoUrl: string;
-  externalLink: string;
+  externalLink?: string;
+  likes?: number; 
 }
 
 interface CarCardProps {
@@ -34,16 +37,67 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
   const [imgIndex, setImgIndex] = useState(0); 
   const [isVideoPlaying, setIsVideoPlaying] = useState<boolean>(false);
   const [isLiked, setIsLiked] = useState<boolean>(false);
+  const [dbLikes, setDbLikes] = useState<number>(car.likes || 0); 
+  const [contactInfo, setContactInfo] = useState({ whatsapp: "+2347034632037" });
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  const totalLikes = useMemo(() => Math.floor(Math.random() * 500) + 1, []);
-  const whatsappNumber = "+2347034632037";
-  const whatsappMessage = `Hello! I'm interested in the ${car.name} ${car.model}. Please provide more details.`;
+  // 1. Fetch Contact Logic
+  useEffect(() => {
+    const fetchContactInfo = async () => {
+      try {
+        const docRef = doc(db, 'site_settings', 'contacts');
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setContactInfo(docSnap.data() as { whatsapp: string });
+        }
+      } catch (e) {
+        console.error("Error loading contacts:", e);
+      }
+    };
+    fetchContactInfo();
+  }, []);
 
-  // LOGIC: Build a GSMArena-style Technical Database URL
+  // 2. Real-time Likes Sync
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, 'vehicles', String(car.id)), (docSnap) => {
+      if (docSnap.exists()) {
+        setDbLikes(docSnap.data().likes || 0);
+      }
+    });
+    return () => unsub();
+  }, [car.id]);
+
+  useEffect(() => {
+    const savedLikes = JSON.parse(localStorage.getItem('user_liked_cars') || '{}');
+    if (savedLikes[car.id]) {
+      setIsLiked(true);
+    }
+  }, [car.id]);
+
+  const toggleLike = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const carRef = doc(db, 'vehicles', String(car.id));
+    const savedLikes = JSON.parse(localStorage.getItem('user_liked_cars') || '{}');
+
+    try {
+      if (isLiked) {
+        delete savedLikes[car.id];
+        setIsLiked(false);
+        await updateDoc(carRef, { likes: increment(-1) });
+      } else {
+        savedLikes[car.id] = true;
+        setIsLiked(true);
+        await updateDoc(carRef, { likes: increment(1) });
+      }
+      localStorage.setItem('user_liked_cars', JSON.stringify(savedLikes));
+      window.dispatchEvent(new Event('likesUpdated'));
+    } catch (error) {
+      console.error("Like update failed:", error);
+    }
+  };
+
   const technicalDbUrl = useMemo(() => {
     if (car.externalLink && car.externalLink.startsWith('http')) return car.externalLink;
-    // Fallback: Search Auto-Data.net (The GSMArena of cars)
     return `https://www.auto-data.net/en/results?search=${encodeURIComponent(car.name + " " + car.model)}`;
   }, [car.name, car.model, car.externalLink]);
 
@@ -57,31 +111,15 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
     }
   }, [searchParams, car.id]);
 
-  useEffect(() => {
-    const savedLikes = JSON.parse(localStorage.getItem('user_liked_cars') || '{}');
-    if (savedLikes[car.id]) {
-      setIsLiked(true);
-    }
-    window.dispatchEvent(new Event('likesUpdated'));
-  }, [car.id]);
-
-  const toggleLike = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const savedLikes = JSON.parse(localStorage.getItem('user_liked_cars') || '{}');
-    if (isLiked) {
-      delete savedLikes[car.id];
-      setIsLiked(false);
-    } else {
-      savedLikes[car.id] = true;
-      setIsLiked(true);
-    }
-    localStorage.setItem('user_liked_cars', JSON.stringify(savedLikes));
-    window.dispatchEvent(new Event('likesUpdated'));
-  };
-
   const handleVideoPlay = () => { setIsVideoPlaying(true); videoRef.current?.play(); };
   const handleVideoClose = () => { setIsVideoPlaying(false); videoRef.current?.pause(); };
-  const openWhatsApp = () => { window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`, '_blank'); };
+  
+  const openWhatsApp = () => { 
+    const message = `Hello! I'm interested in the ${car.name} ${car.model}. Please provide more details.`;
+    // Sanitizing the number to remove spaces/chars before opening
+    const cleanNumber = contactInfo.whatsapp.replace(/\D/g, '');
+    window.open(`https://wa.me/${cleanNumber}?text=${encodeURIComponent(message)}`, '_blank'); 
+  };
 
   const handleDragEnd = (event: any, info: any) => {
     if (info.offset.x < -100 && imgIndex < car.images.length - 1) {
@@ -109,27 +147,27 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
             loading="lazy"
             className="w-full h-[10rem] md:h-full object-cover"
             animate={{ scale: isHovered ? 1.1 : 1 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.3 }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
           
           <div className="absolute top-2 left-1 md:top-4 md:left-4 z-10 flex flex-col items-center">
             <motion.button
               whileHover={{ scale: 1.2 }}
-              whileTap={{ scale: 0.8 }}
+              whileTap={{ scale: 0.6 }}
               onClick={toggleLike}
               className="bg-black/40 backdrop-blur-md p-2 rounded-full border border-white/10 transition-colors"
             >
               {isLiked ? <FaHeart className="text-red-500 text-sm" /> : <FaRegHeart className="text-white text-sm" />}
             </motion.button>
             <span className="text-[9px] font-bold text-pink-200 mt-1 drop-shadow-md">
-              {isLiked ? totalLikes + 1 : totalLikes}
+              {dbLikes}
             </span>
           </div>
 
           <motion.button
             whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
+            whileTap={{ scale: 0.85 }}
             onClick={() => setShowDetails(true)}
             className="absolute top-2 right-1 md:top-4 md:right-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-2 py-1 md:px-3 rounded-xl md:rounded-full font-semibold text-xs hover:shadow-lg transition-all duration-300 flex items-center gap-2"
           >
@@ -146,9 +184,9 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
               </span>
               <h3 className="text-sm md:text-lg font-semibold md:font-bold text-white pb-1 md:pb-0">
                 {car.name} {" "}
-                <small className="md:hidden font-medium text-gray-400 text-[11px] md:text-sm">{car.model}</small>
+                <small className="md:hidden font-medium text-gray-400 text-[10px] md:text-sm">{car.model} {" "}<span className='text-yellow-500 text-[10px]'>{car.specs[7]}</span></small>
               </h3>
-              <p className="hidden md:block text-gray-400 text-sm">{car.model}</p>
+              <p className="hidden md:block text-gray-400 text-sm">{car.model} {" "}<span className='text-yellow-500 text-xs'>{car.specs[7]}</span></p>
             </div>
             <span className="hidden md:block bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2 md:px-3 py-1 rounded-lg md:rounded-full text-[10px] md:text-sm md:font-bold">
               ₦{car.price.toLocaleString()}
@@ -185,85 +223,41 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
         </div>
       </motion.div>
 
-      {/* Video Modal */}
-      <>
+      {/* Modals remain with same logic but using dynamic contact and trim info */}
+      <AnimatePresence>
         {isVideoPlaying && (
-          <div
-            className="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-4"
-            onClick={handleVideoClose}
-          >
-            <div
-              className="relative max-w-4xl w-full"
-              onClick={(e: React.MouseEvent) => e.stopPropagation()}
-            >
-              <button onClick={handleVideoClose} className="absolute -top-12 right-0 text-white text-2xl hover:text-red-500 transition-colors">
-                <FaTimes />
-              </button>
+          <div className="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-4" onClick={handleVideoClose}>
+            <div className="relative max-w-4xl w-full" onClick={(e) => e.stopPropagation()}>
+              <button onClick={handleVideoClose} className="absolute -top-12 right-0 text-white text-2xl hover:text-red-500 transition-colors"><FaTimes /></button>
               <video ref={videoRef} src={car.videoUrl} controls className="w-full rounded-2xl shadow-2xl" onEnded={() => setIsVideoPlaying(false)} />
             </div>
           </div>
         )}
-      </>
+      </AnimatePresence>
 
-      {/* Slidable Image Overlay */}
       <AnimatePresence>
         {showFullImage && (
-          <motion.div 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 1 }} 
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/98 z-[110] flex flex-col items-center justify-center touch-none"
-            onClick={() => setShowFullImage(false)}
-          >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/98 z-[110] flex flex-col items-center justify-center touch-none" onClick={() => setShowFullImage(false)}>
             <button className="absolute top-8 right-8 text-white text-3xl z-[120]"><FaTimes /></button>
-            
-            <motion.div
-              key={imgIndex}
-              drag="x"
-              dragConstraints={{ left: 0, right: 0 }}
-              onDragEnd={handleDragEnd}
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -50 }}
-              className="w-full h-full flex items-center justify-center cursor-grab active:cursor-grabbing"
-            >
-              <img 
-                src={car.images[imgIndex]} 
-                className="max-w-full max-h-[85vh] object-contain pointer-events-none" 
-              />
+            <motion.div key={imgIndex} drag="x" dragConstraints={{ left: 0, right: 0 }} onDragEnd={handleDragEnd} initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }} className="w-full h-full flex items-center justify-center cursor-grab active:cursor-grabbing">
+              <img src={car.images[imgIndex]} className="max-w-full max-h-[85vh] object-contain pointer-events-none" />
             </motion.div>
-
-            {/* Dots for image list */}
             <div className="absolute bottom-10 flex gap-3">
               {car.images.map((_, i) => (
-                <div 
-                  key={i} 
-                  onClick={(e) => { e.stopPropagation(); setImgIndex(i); }}
-                  className={`w-2.5 h-2.5 rounded-full cursor-pointer transition-all ${imgIndex === i ? 'bg-blue-500 scale-125' : 'bg-gray-600'}`} 
-                />
+                <div key={i} onClick={(e) => { e.stopPropagation(); setImgIndex(i); }} className={`w-2.5 h-2.5 rounded-full cursor-pointer transition-all ${imgIndex === i ? 'bg-blue-500 scale-125' : 'bg-gray-600'}`} />
               ))}
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Details Modal */}
-      <>
+      <AnimatePresence>
         {showDetails && (
-          <div
-            className="fixed inset-0 bg-black/95 z-50 overflow-y-auto p-1.5"
-            onClick={() => setShowDetails(false)}
-          >
-            <div
-              className="bg-gradient-to-br from-gray-900 to-black rounded-3xl max-w-6xl mx-auto my-4 overflow-hidden border border-gray-800"
-              onClick={(e: React.MouseEvent) => e.stopPropagation()}
-            >
+          <div className="fixed inset-0 bg-black/95 z-50 overflow-y-auto p-1.5" onClick={() => setShowDetails(false)}>
+            <div className="bg-gradient-to-br from-gray-900 to-black rounded-3xl max-w-6xl mx-auto my-4 overflow-hidden border border-gray-800" onClick={(e) => e.stopPropagation()}>
               <div className="grid md:grid-cols-2 gap-8 p-3 md:p-6 lg:p-10">
                 <div>
-                  <div 
-                    className="relative h-70 md:h-96 rounded-2xl overflow-hidden mb-4 cursor-zoom-in"
-                    onClick={() => setShowFullImage(true)}
-                  >
+                  <div className="relative h-70 md:h-96 rounded-2xl overflow-hidden mb-4 cursor-zoom-in" onClick={() => setShowFullImage(true)}>
                     <img src={selectedImage} alt={car.name} className="w-full h-full object-cover" />
                     <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 bg-black/20 backdrop-blur-sm p-2 rounded-full">
                        {car.images.map((_, i) => (
@@ -271,15 +265,9 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
                        ))}
                     </div>
                   </div>
-                  
-                  {/* Thumbnail images */}
                   <div className="flex gap-3 overflow-x-auto p-2 scrollbar-hide snap-x">
                     {car.images.map((image, index) => (
-                      <button
-                        key={index}
-                        onClick={() => setImgIndex(index)}
-                        className={`flex-shrink-0 snap-start w-20 h-14 md:w-24 md:h-18 rounded-xl overflow-hidden border-2 transition-all duration-300 ${imgIndex === index ? 'border-blue-500 scale-105 shadow-[0_0_10px_rgba(59,130,246,0.5)]' : 'border-gray-700 hover:border-gray-500'}`}
-                      >
+                      <button key={index} onClick={() => setImgIndex(index)} className={`flex-shrink-0 snap-start w-20 h-14 md:w-24 md:h-18 rounded-xl overflow-hidden border-2 transition-all duration-300 ${imgIndex === index ? 'border-blue-500 scale-105 shadow-[0_0_10px_rgba(59,130,246,0.5)]' : 'border-gray-700 hover:border-gray-500'}`}>
                         <img src={image} className="w-full h-full object-cover" />
                       </button>
                     ))}
@@ -291,26 +279,17 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
                     <div className="flex items-center gap-4">
                       <div>
                         <h2 className="text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">{car.name}</h2>
-                        <p className="text-xl text-gray-400">{car.model}</p>
+                        <p className="text-xl text-gray-400">{car.model}{" "}{car.specs[7]}</p>
                       </div>
-                      <motion.button 
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={toggleLike}
-                        className={`p-3 rounded-2xl border transition-all ${isLiked ? 'bg-red-500/10 border-red-500/50 text-red-500 shadow-[0_0_15px_rgba(239,68,68,0.2)]' : 'bg-white/5 border-white/10 text-white'}`}
-                      >
+                      <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={toggleLike} className={`p-3 rounded-2xl border transition-all ${isLiked ? 'bg-red-500/10 border-red-500/50 text-red-500 shadow-[0_0_15px_rgba(239,68,68,0.2)]' : 'bg-white/5 border-white/10 text-white'}`}>
                         {isLiked ? <FaHeart /> : <FaRegHeart />}
                       </motion.button>
                     </div>
                     <button onClick={() => setShowDetails(false)} className="text-gray-400 hover:text-white text-2xl transition-colors"><FaTimes /></button>
                   </div>
-
                   <div className="mb-4">
-                    <span className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-10 py-2 rounded-full text-sm font-bold inline-block">
-                      ₦{car.price.toLocaleString()}
-                    </span>
+                    <span className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-10 py-2 rounded-full text-sm font-bold inline-block">₦{car.price.toLocaleString()}</span>
                   </div>
-
                   <div className="mb-4">
                     <h3 className="text-lg font-bold mb-4 text-gray-300">Specifications</h3>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -331,42 +310,23 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
                       ))}
                     </div>
                   </div>
-
                   <div className="mb-4">
                     <h3 className="text-lg font-bold mb-1 text-gray-300">Description</h3>
                     <p className="text-gray-400 leading-relaxed text-sm mb-2">{car.description}</p>
-                    
-                    {/* GSMArena Style Database Link */}
-                      <a 
-                        href={technicalDbUrl} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-blue-400 text-[11px] font-bold hover:underline flex items-center gap-1"
-                      >
-                        <FaFileAlt className="text-blue-400" /> Verify details on Auto-Data <FaExternalLinkAlt className="text-[9px]" />
-                      </a>
+                    <a href={technicalDbUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 text-[11px] font-bold hover:underline flex items-center gap-1">
+                      <FaFileAlt className="text-blue-400" /> Verify details on Auto-Data <FaExternalLinkAlt className="text-[9px]" />
+                    </a>
                   </div>
-
                   <div className="flex flex-col sm:flex-row gap-4">
-                    <button
-                      onClick={handleVideoPlay}
-                      className="flex-1 bg-gradient-to-r from-red-600 to-pink-700 text-white py-3 rounded-xl font-bold hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-3 text-sm"
-                    >
-                      <FaPlay /> Watch Review Video
-                    </button>
-                    <button
-                      onClick={openWhatsApp}
-                      className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 rounded-xl font-bold hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-3 text-sm"
-                    >
-                      <FaWhatsapp className="text-xl" /> WhatsApp Agent
-                    </button>
+                    <button onClick={handleVideoPlay} className="flex-1 bg-gradient-to-r from-red-600 to-pink-700 text-white py-3 rounded-xl font-bold hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-3 text-sm"><FaPlay /> Watch Review Video</button>
+                    <button onClick={openWhatsApp} className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 rounded-xl font-bold hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-3 text-sm"><FaWhatsapp className="text-xl" /> WhatsApp Agent</button>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         )}
-      </>
+      </AnimatePresence>
     </>
   );
 };

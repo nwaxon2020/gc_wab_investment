@@ -106,7 +106,7 @@ export default function ProductDetailOverlay({ product, onClose, onAddToCart }: 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-0 md:p-4">
       <div className="absolute inset-0 bg-black/80" onClick={onClose} />
-      <div className="relative bg-white w-full h-full md:h-auto md:max-h-[95vh] md:max-w-5xl md:rounded-3xl overflow-hidden flex flex-col md:flex-row shadow-2xl">
+      <div className="relative bg-white w-full h-full md:h-auto md:max-h-[93vh] md:max-w-5xl md:rounded-xl overflow-hidden flex flex-col md:flex-row shadow-2xl">
         <button onClick={onClose} className="absolute top-4 right-4 z-[80] bg-white/90 text-emerald-900 p-3 rounded-full shadow-lg hover:bg-emerald-50 transition-colors"><FaTimes size={20} /></button>
         <div className="w-full md:w-1/2 bg-gray-50 flex flex-col shrink-0 border-none outline-none">
           <div className="relative h-[40vh] md:h-full overflow-hidden cursor-zoom-in min-h-[300px]" onClick={() => setIsLightboxOpen(true)} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}>
@@ -116,7 +116,7 @@ export default function ProductDetailOverlay({ product, onClose, onAddToCart }: 
               <button onClick={(e) => { e.stopPropagation(); nextImage(); }} className="p-2 bg-white/80 rounded-full hover:bg-white text-emerald-900"><FaChevronRight /></button>
             </div>
           </div>
-          <div className="p-4 flex gap-2 overflow-x-auto no-scrollbar bg-white">
+          <div className="p-4 flex items-center gap-2 overflow-x-auto overflow-y-hidden no-scrollbar bg-white">
             {allGalleryImages.map((image, index) => (
               <button key={index} onClick={() => setSelectedImage(index)} className={`w-14 h-14 md:w-16 md:h-16 shrink-0 rounded-xl overflow-hidden border-2 transition-colors ${selectedImage === index ? 'border-emerald-600' : 'border-transparent opacity-70'}`}><img src={image} alt="thumb" loading="lazy" className="w-full h-full object-cover" /></button>
             ))}

@@ -70,9 +70,9 @@ export default function Footer() {
                 setShowAdminOverlay(false)
 
                 if (uid === process.env.NEXT_PUBLIC_ADMIN_ID_1) {
-                    window.location.href = '/car'
+                    window.location.href = '/admin/cars'
                 } else if (uid === process.env.NEXT_PUBLIC_ADMIN_ID_2) {
-                    window.location.href = '/shop'
+                    window.location.href = '/admin/fashion'
                 } else {
                     window.location.href = '/'
                 }

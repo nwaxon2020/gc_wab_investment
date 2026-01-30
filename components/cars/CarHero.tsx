@@ -2,9 +2,35 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { db } from '@/lib/firebaseConfig';
+import { doc, onSnapshot } from 'firebase/firestore';
 
 const CarHero = () => {
   const [scrollY, setScrollY] = useState(0);
+  
+  // --- DYNAMIC DATA STATE WITH ORIGINAL MOCK FALLBACKS ---
+  const [heroData, setHeroData] = useState({
+    title: 'PREMIUM COLLECTION',
+    subtitle: 'Elite Automotive Luxury',
+    description: "Discover the world's most exclusive supercars. Hover for previews, click for details.",
+    bgImage: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1600'
+  });
+
+  // Handle real-time sync with Firestore site_settings/car_hero
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, 'site_settings', 'car_hero'), (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setHeroData({
+          title: data.title || 'PREMIUM COLLECTION',
+          subtitle: data.subtitle || 'Elite Automotive Luxury',
+          description: data.description || "Discover the world's most exclusive supercars. Hover for previews, click for details.",
+          bgImage: data.bgImage || 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1600'
+        });
+      }
+    });
+    return () => unsub();
+  }, []);
 
   // Handle scroll for the parallax effect
   useEffect(() => {
@@ -30,20 +56,17 @@ const CarHero = () => {
           }}
           className="absolute inset-0 bg-cover bg-center opacity-60"
           style={{
-            // High-quality automotive background
-            backgroundImage: `url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1600')`,
+            // Dynamic Background Image from Firebase
+            backgroundImage: `url('${heroData.bgImage}')`,
             y: scrollY * 0.3, // The Parallax effect
           }}
         />
         
         {/* 2. EMERALD GRADIENT OVERLAYS */}
-        {/* Top-to-bottom depth */}
         <div className="absolute inset-0 bg-gradient-to-b from-[#064e3b]/40 via-[#061a13]/20 to-gray-950" />
-        
-        {/* Vignette effect */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_rgba(6,26,19,0.8)_100%)]" />
         
-        {/* 3. FLOATING EMERALD PARTICLES (Multiple moving globs) */}
+        {/* 3. FLOATING EMERALD PARTICLES */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           {[...Array(6)].map((_, i) => (
             <motion.div
@@ -76,9 +99,9 @@ const CarHero = () => {
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
           {/* Main Title with Emerald Gradient */}
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-black mb-3 tracking-tighter">
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-black mb-3 tracking-tighter uppercase">
             <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-200 bg-clip-text text-transparent">
-              PREMIUM COLLECTION
+              {heroData.title}
             </span>
           </h1>
 
@@ -90,8 +113,8 @@ const CarHero = () => {
               transition={{ delay: 0.5, duration: 0.8 }}
               className="h-[1px] bg-emerald-500/50"
             />
-            <p className="text-emerald-400/80 text-[10px] md:text-xs uppercase tracking-[0.4em] font-black">
-              Elite Automotive Luxury
+            <p className="text-emerald-400/80 text-[10px] md:text-xs uppercase tracking-[0.2em] font-black">
+              {heroData.subtitle}
             </p>
             <motion.div 
               initial={{ width: 0 }}
@@ -100,13 +123,14 @@ const CarHero = () => {
               className="h-[1px] bg-emerald-500/50"
             />
           </div>
-            <p className="text-gray-400 text-sm max-w-3xl mx-auto">
-                Discover the world&apos;s most exclusive supercars. Hover for previews, click for details.
-            </p>
+          
+          <p className="text-gray-400 text-sm max-w-3xl mx-auto mt-4 leading-relaxed">
+            {heroData.description}
+          </p>
         </motion.div>
       </div>
 
-      {/* 5. BOTTOM FADE (Smooth transition to main content) */}
+      {/* 5. BOTTOM FADE */}
       <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-gray-950 to-transparent z-10" />
     </div>
   );
