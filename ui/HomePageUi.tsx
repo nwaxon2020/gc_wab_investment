@@ -57,7 +57,7 @@ export default function Home() {
 
       <main className="relative z-10 container mx-auto sm:px-6 lg:px-8 pt-8 pb-6 md:pb-16">
         <div className="px-3 flex justify-center mb-12">
-          <div className="inline-flex rounded-2xl p-1 bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
+          <div className="inline-flex rounded-xl p-1 bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
             <button
               onClick={() => handleTabChange('cars')}
               className={`px-8 py-4 rounded-xl text-lg font-semibold transition-all duration-300 ${activeTab === 'cars' ? 'text-white shadow-lg' : 'text-gray-600 hover:text-gray-900'}`}
@@ -77,9 +77,9 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="px-4 grid lg:grid-cols-2 gap-12 mb-16">
+        <div className="px-3 grid lg:grid-cols-2 gap-12 mb-16">
           <div className={`transition-all duration-700 ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}>
-            <div className="bg-white rounded-3xl p-8 shadow-2xl border border-gray-100 h-full">
+            <div className="bg-white rounded-xl p-8 shadow-2xl border border-gray-100 h-full">
               <h2 className="text-center text-2xl md:text-4xl font-bold mb-6 text-[#14532d]">
                 {activeTab === 'cars' ? 'Premium Automotive Division' : 'Elite Fashion Brand'}
               </h2>
@@ -104,7 +104,7 @@ export default function Home() {
           <div className={`transition-all duration-700 delay-300 ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}`}>
             <div className="grid grid-cols-2 gap-4 h-full">
               {(activeTab === 'cars' ? carData : fashionData).map((item, index) => (
-                <div key={index} className={`relative overflow-hidden rounded-2xl ${index === 0 ? 'col-span-2 h-64' : 'h-48'}`}>
+                <div key={index} className={`relative overflow-hidden rounded-xl ${index === 0 ? 'col-span-2 h-64' : 'h-48'}`}>
                   
                   <Link href={activeTab === 'cars' ? `/cars?view=${item.id}` : `/shop#shophere`}>
                     <img 
