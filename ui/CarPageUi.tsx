@@ -135,7 +135,7 @@ export default function Home() {
             <div className="flex gap-4 w-full md:w-auto">
               <button 
                 onClick={() => setIsUnder5M(!isUnder5M)}
-                className={`w-full md:w-40 flex items-center gap-2 px-6 py-2 rounded-xl font-semibold transition-all duration-300 border ${
+                className={`text-sm md:text-base w-full md:w-40 flex items-center gap-2 px-6 py-2 rounded-xl font-semibold transition-all duration-300 border ${
                   isUnder5M 
                   ? "bg-emerald-800 border-emerald-600 text-white shadow-lg" 
                   : "bg-gray-900 border-gray-700 text-gray-300 hover:bg-emerald-600"
@@ -145,7 +145,7 @@ export default function Home() {
                 Under 5M
               </button>
 
-              <button onClick={handleReset} className="w-full md:w-40 px-6 py-2 bg-gray-900 border border-gray-700 rounded-xl font-semibold hover:bg-gray-800 transition-all duration-300">
+              <button onClick={handleReset} className="w-full text-sm md:text-base md:w-40 px-6 py-2 bg-gray-900 border border-gray-700 rounded-xl font-semibold hover:bg-gray-800 transition-all duration-300">
                 Reset
               </button>
             </div>
@@ -157,7 +157,7 @@ export default function Home() {
               <button
                 key={brand}
                 onClick={() => setSelectedBrand(brand)}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 border ${
+                className={`px-4 py-1.5 rounded-full text-xs md:text-sm font-medium transition-all duration-200 border ${
                   selectedBrand === brand 
                     ? "bg-blue-600 border-blue-500 text-white" 
                     : "bg-gray-900 border-gray-800 text-gray-400 hover:border-gray-600"

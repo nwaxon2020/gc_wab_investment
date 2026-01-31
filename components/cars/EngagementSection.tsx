@@ -82,11 +82,11 @@ Generated from your Car Collection App.
   };
 
   return (
-    <section className="max-w-7xl mx-auto mt-20 px-2 md:px-0 mb-20">
+    <section className="max-w-7xl mx-auto my-10 px-2 md:px-0">
       <div className="grid md:grid-cols-2 gap-8">
         
         {/* 1. INTERACTIVE LOAN CALCULATOR */}
-        <div className="bg-gradient-to-br from-emerald-900/40 to-black p-4 py-6 md:p-8 rounded-3xl border border-emerald-500/20 shadow-xl">
+        <div className="bg-gradient-to-br from-emerald-900/40 to-black p-4 py-6 md:p-8 rounded-xl border border-emerald-500/20 shadow-xl">
           <div className="flex items-center gap-3 mb-6">
             <FaCalculator className="text-emerald-400 text-2xl" />
             <h3 className="text-xl font-bold text-white">Financing Estimator</h3>
@@ -120,7 +120,7 @@ Generated from your Car Collection App.
               </div>
             </div>
 
-            <div className="bg-emerald-500/10 p-4 rounded-2xl border border-emerald-500/20 text-center">
+            <div className="bg-emerald-500/10 p-4 rounded-xl border border-emerald-500/20 text-center">
               <span className="text-gray-400 text-xs uppercase block mb-1">Estimated Monthly Pay</span>
               <span className="text-2xl font-black text-emerald-400">₦{monthlyPayment.toLocaleString()}*</span>
               <p className="text-[10px] text-gray-500 mt-2 italic">
@@ -131,7 +131,7 @@ Generated from your Car Collection App.
         </div>
 
         {/* 2. BUYER'S PRO-TIPS */}
-        <div className="bg-gray-900/40 p-4 py-8 md:p-8 rounded-3xl border border-gray-800 flex flex-col justify-between">
+        <div className="bg-gray-900/40 p-4 py-8 md:p-8 rounded-xl border border-gray-800 flex flex-col justify-between">
           <div>
             <div className="flex items-center gap-3 mb-6">
               <FaLightbulb className="text-amber-400 text-2xl" />
@@ -158,16 +158,16 @@ Generated from your Car Collection App.
 
           <button 
             onClick={downloadChecklist}
-            className="w-full mt-6 py-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-xs font-bold uppercase tracking-widest transition-all text-white flex items-center justify-center gap-2"
+            className="text-left w-full mt-6 p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-bold uppercase tracking-widest transition-all text-white flex items-center justify-center gap-4"
           >
             <FaDownload className="text-emerald-400" />
-            Download Full Inspection Checklist
+            <span className='flex'><span className='hidden md:block mr-1.5'>Download</span>Inspection Checklist</span>
           </button>
         </div>
       </div>
 
       {/* 3. TRUST BANNER */}
-      <div className="mt-12 bg-emerald-600 rounded-[2rem] p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl shadow-emerald-900/20">
+      <div className="mt-12 bg-emerald-600 rounded-xl p-8  flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl shadow-emerald-900/20">
         <div className="flex items-center gap-6">
           <div className="bg-white/20 p-4 rounded-2xl">
             <FaShieldAlt className="text-3xl text-white" />

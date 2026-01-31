@@ -137,15 +137,15 @@ export default function EditVehiclePageUi() {
     if (loading) return <div className="p-20 text-center text-emerald-500 font-black">FETCHING VEHICLE DATA...</div>;
 
     return (
-        <div className="max-w-6xl mx-auto px-6 py-10">
+        <div className="max-w-6xl mx-auto px-3 md:px-6 py-10">
             <button onClick={() => router.back()} className="mb-6 flex items-center gap-2 text-gray-400 hover:text-emerald-500 font-bold uppercase text-xs">
                 <FaArrowLeft /> Back to Inventory
             </button>
 
-            <form onSubmit={handleSubmit} className="bg-gray-900/50 border border-white/5 p-6 md:p-10 rounded-xl shadow-2xl">
+            <form onSubmit={handleSubmit} className="bg-gray-900/50 border border-white/5 p-2 md:p-6 md:p-10 rounded-xl shadow-2xl">
                 <div className="grid lg:grid-cols-2 gap-12">
                     <div className="space-y-6">
-                        <div className="bg-black/40 p-6 rounded-xl border border-white/5">
+                        <div className="bg-black/40 p-4 md:p-6 rounded-xl border border-white/5">
                             <div className="flex justify-between items-center mb-4">
                                 <span className="text-xs font-black uppercase text-emerald-500 tracking-widest flex items-center gap-2">
                                     <FaCar /> Edit Images ({imagePreviews.length}/10)
@@ -177,7 +177,7 @@ export default function EditVehiclePageUi() {
                             </div>
                         </div>
 
-                        <div className="bg-black/40 p-6 rounded-xl border border-white/5">
+                        <div className="bg-black/40 p-4 md:p-6 rounded-xl border border-white/5">
                             <div className="flex justify-between items-center mb-4">
                                 <span className="text-xs font-black uppercase text-red-500 tracking-widest flex items-center gap-2"><FaVideo /> Video</span>
                                 <div className="flex bg-gray-900 rounded-lg p-1 text-[9px] font-bold">

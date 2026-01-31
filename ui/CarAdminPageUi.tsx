@@ -55,18 +55,7 @@ export default function CarAdminUi() {
     return () => unsubVehicles();
   }, []);
 
-  const saveContacts = async () => {
-    setSavingContact(true);
-    try {
-      await setDoc(doc(db, 'site_settings', 'contacts'), contactInfo);
-      toast.success("Contact info updated!");
-    } catch (e) {
-      toast.error("Failed to save contact info");
-    } finally {
-      setSavingContact(false);
-    }
-  };
-
+ 
   const handleLogout = async () => {
     await signOut(auth);
     router.push('/');
@@ -109,13 +98,15 @@ export default function CarAdminUi() {
           <p className="text-gray-500 font-bold text-xs uppercase tracking-widest mt-1">Premium Automobile Management</p>
         </div>
         
-        <div className="flex flex-wrap gap-3 w-full md:w-auto">
-          <button onClick={() => { setShowFinanceEditor(!showFinanceEditor); setShowHeroEditor(false); setShowAddForm(false); }} className={`flex flex-1 md:flex-none justify-center items-center gap-3 px-3 md:px-5 py-4 rounded-xl font-black uppercase text-xs transition-all border ${showFinanceEditor ? 'bg-emerald-500 text-black border-emerald-500' : 'bg-transparent text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/10'}`}>
-            {showFinanceEditor ? <><FaTimes /> Close</> : <><FaCalculator /> Finance Rates</>}
-          </button>
-          <button onClick={() => { setShowHeroEditor(!showHeroEditor); setShowFinanceEditor(false); setShowAddForm(false); }} className={`flex flex-1 md:flex-none justify-center items-center gap-3 px-3 md:px-5 py-4 rounded-xl font-black uppercase text-xs transition-all border ${showHeroEditor ? 'bg-emerald-500 text-black border-emerald-500' : 'bg-transparent text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/10'}`}>
-            {showHeroEditor ? <><FaTimes /> Close</> : <><FaImage />Car Hero Pg</>}
-          </button>
+        <div className="flex flex-col md:flex-row flex-wrap gap-3 w-full md:w-auto">
+          <div className='flex justify-center items-center gap-3 w-full md:w-auto'>
+            <button onClick={() => { setShowFinanceEditor(!showFinanceEditor); setShowHeroEditor(false); setShowAddForm(false); }} className={`flex flex-1 md:flex-none justify-center items-center gap-3 px-3 md:px-5 py-4 rounded-xl font-black uppercase text-xs transition-all border ${showFinanceEditor ? 'bg-emerald-500 text-black border-emerald-500' : 'bg-transparent text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/10'}`}>
+              {showFinanceEditor ? <><FaTimes /> Close</> : <><FaCalculator /> Finance Rates</>}
+            </button>
+            <button onClick={() => { setShowHeroEditor(!showHeroEditor); setShowFinanceEditor(false); setShowAddForm(false); }} className={`flex flex-1 md:flex-none justify-center items-center gap-3 px-3 md:px-5 py-4 rounded-xl font-black uppercase text-xs transition-all border ${showHeroEditor ? 'bg-emerald-500 text-black border-emerald-500' : 'bg-transparent text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/10'}`}>
+              {showHeroEditor ? <><FaTimes /> Close</> : <><FaImage />Car Hero Pg</>}
+            </button>
+          </div>
           <button onClick={() => { setShowAddForm(!showAddForm); setShowHeroEditor(false); setShowFinanceEditor(false); }} className={`flex flex-1 md:flex-none justify-center items-center gap-3 px-8 py-4 rounded-xl font-black uppercase text-xs transition-all ${showAddForm ? 'bg-gray-700 text-white' : 'bg-emerald-500 text-white'}`}>
             {showAddForm ? <FaTimes /> : <FaPlus />} {showAddForm ? 'Close' : 'Add Car'}
           </button>
@@ -137,35 +128,6 @@ export default function CarAdminUi() {
               <h3 className="text-white font-bold uppercase text-sm tracking-tight">Fleet Status</h3>
               <p className="text-gray-500 text-xs font-medium">Database Sync Active ({vehicles.length} Units)</p>
             </div>
-          </div>
-
-          {/* CONTACT INPUTS SECTION */}
-          <div className="flex flex-col md:flex-row items-center gap-3 w-full lg:flex-1 lg:max-w-2xl">
-            <div className="relative w-full">
-              <FaWhatsapp className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500" />
-              <input 
-                value={contactInfo.whatsapp}
-                onChange={(e) => setContactInfo({...contactInfo, whatsapp: e.target.value})}
-                placeholder="+234..."
-                className="w-full bg-black/50 border border-white/10 p-3 pl-10 rounded-xl text-xs text-white outline-none focus:border-emerald-500 transition-all"
-              />
-            </div>
-            <div className="relative w-full">
-              <FaEnvelope className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500" />
-              <input 
-                value={contactInfo.email}
-                onChange={(e) => setContactInfo({...contactInfo, email: e.target.value})}
-                placeholder="Business Email"
-                className="w-full bg-black/50 border border-white/10 p-3 pl-10 rounded-xl text-xs text-white outline-none focus:border-emerald-500 transition-all"
-              />
-            </div>
-            <button 
-              onClick={saveContacts}
-              disabled={savingContact}
-              className="w-full md:w-auto bg-emerald-600 hover:bg-emerald-500 text-white p-3 rounded-xl transition-all active:scale-95 disabled:opacity-50"
-            >
-              <FaSave />
-            </button>
           </div>
 
           <span className="hidden lg:block text-[10px] bg-emerald-500/10 text-emerald-500 px-4 py-1.5 rounded-full font-black uppercase tracking-tighter">Live</span>

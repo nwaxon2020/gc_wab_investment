@@ -4,11 +4,12 @@ import { auth } from '@/lib/firebaseConfig'
 import { isMasterAdmin } from '@/lib/admin'
 import { signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from 'firebase/auth'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 
 export default function Nav() {
   const pathname = usePathname()
+  const router = useRouter()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [user, setUser] = useState<any>(null)
@@ -40,21 +41,22 @@ export default function Nav() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b-2 border-[#f0fdf4] shadow-md">
-      <nav className="container mx-auto px-4 h-15 md:h-18 flex justify-between items-center">
+      {/* Adjusted max-width to reduce that "empty padding" look on wide screens */}
+      <nav className=" mx-auto px-6 h-15 md:h-18 flex justify-between items-center relative z-[150] bg-white">
         
-        {/* LEFT COLUMN: LOGO (flex-1 ensures it takes equal space to the right col) */}
-        <div className="flex-1 flex items-center">
+        {/* LOGO */}
+        <div className="flex items-center">
           <Link href="/" className="flex items-center shrink-0">
             <div className="w-10 h-10 md:w-12 md:h-12 rounded-full mr-3 bg-emerald-700"></div>
             <div className="flex flex-col">
-              <h1 className="text-xl md:text-2xl font-extrabold tracking-tighter text-emerald-700">GC WAB</h1>
-              <span className="text-[9px] text-gray-400 uppercase tracking-widest leading-none">Investments</span>
+              <h1 className="text-xl md:text-2xl font-extrabold tracking-tighter text-emerald-700 leading-none">GC WAB</h1>
+              <span className="text-[9px] text-gray-400 uppercase tracking-widest mt-1">Investments</span>
             </div>
           </Link>
         </div>
 
-        {/* CENTER COLUMN: NAVIGATION LINKS (absolute centering logic) */}
-        <div className="hidden md:flex items-center justify-center space-x-14">
+        {/* CENTER LINKS */}
+        <div className="hidden md:flex items-center space-x-10 lg:space-x-14">
           {navLinks.map((link) => (
             <Link 
               key={link.name} 
@@ -66,107 +68,126 @@ export default function Nav() {
           ))}
         </div>
 
-        {/* RIGHT COLUMN: PROFILE & AUTH (flex-1 and justify-end to balance the left col) */}
-        <div className="flex-1 flex justify-end items-center">
+        {/* PROFILE & AUTH */}
+        <div className="flex items-center justify-end">
           {/* DESKTOP PROFILE */}
-          <div className="hidden md:block">
+          <div className="hidden md:flex items-center">
             {!user ? (
               <button onClick={handleGoogleLogin} className="bg-emerald-700 text-white px-7 py-3 rounded-2xl text-xs font-bold uppercase shadow-lg hover:bg-[#1b6639] transition-all">Sign In</button>
             ) : (
-              <div className="relative">
-                <button onClick={() => setIsProfileOpen(!isProfileOpen)} className="flex items-center gap-4 pl-6 group">
-                  <div className="text-right hidden xl:block leading-tight">
-                    <p className="text-[10px] font-bold text-emerald-700 uppercase">{isAdmin ? 'Admin' : user.displayName?.split(' ')[0]}</p>
+              <div className="flex items-center gap-6">
+                {/* ADMIN LABELS NEXT TO AVATAR */}
+                {isAdmin && (
+                  <div className="flex items-center gap-4 border-r border-gray-100 pr-6">
+                    <button onClick={() => router.push('/admin')} className="text-[10px] font-black text-emerald-600 uppercase hover:text-emerald-800 transition-colors">Car Admin</button>
+                    <button onClick={() => router.push('/admin/fashion')} className="text-[10px] font-black text-amber-600 uppercase hover:text-amber-700 transition-colors">Fashion Admin</button>
                   </div>
-                  <img 
-                    src={isAdmin ? adminPlaceholder : user.photoURL} 
-                    referrerPolicy="no-referrer"
-                    className="w-10 h-10 rounded-full border-2 border-emerald-700 object-cover shadow-sm group-hover:scale-105 transition-transform" 
-                    alt="avatar"
-                  />
-                </button>
+                )}
 
-                <AnimatePresence>
-                  {isProfileOpen && (
-                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="absolute right-0 mt-4 w-64 bg-white rounded-3xl shadow-2xl border border-gray-100 p-5 z-[100]">
-                      <div className="pb-4 border-b mb-3">
-                        <p className="font-bold text-[#14532d] text-sm truncate">{isAdmin ? 'Admin Panel' : user.displayName}</p>
-                        <p className="text-[11px] text-gray-400 truncate">{user.email}</p>
-                      </div>
-                      {isAdmin && (
-                        <Link href="/admin" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-3 w-full p-3 text-sm font-bold text-[#16a34a] hover:bg-green-50 rounded-xl mb-1 transition-colors">
-                          Dashboard
-                        </Link>
-                      )}
-                      <button onClick={handleLogout} className="flex items-center gap-3 w-full p-3 text-sm font-bold text-red-500 hover:bg-red-50 rounded-xl transition-colors">
-                        Sign Out
-                      </button>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                <div className="relative">
+                  <button onClick={() => setIsProfileOpen(!isProfileOpen)} className="flex items-center gap-3 group">
+                    <p className="text-[10px] font-bold text-gray-400 uppercase group-hover:text-emerald-700 transition-colors">
+                      {user.displayName?.split(' ')[0]}
+                    </p>
+                    <img 
+                      src={isAdmin ? adminPlaceholder : user.photoURL} 
+                      referrerPolicy="no-referrer"
+                      className="w-10 h-10 rounded-full border-2 border-emerald-700 object-cover group-hover:scale-105 transition-transform" 
+                      alt="avatar"
+                    />
+                  </button>
+
+                  <AnimatePresence>
+                    {isProfileOpen && (
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="absolute right-0 mt-4 w-64 bg-white rounded-3xl shadow-2xl border border-gray-100 p-5 z-[100]">
+                        <div className="pb-4 border-b mb-3">
+                          <p className="font-bold text-[#14532d] text-sm truncate">{user.displayName}</p>
+                          <p className="text-[11px] text-gray-400 truncate">{user.email}</p>
+                        </div>
+                        <button onClick={handleLogout} className="flex items-center gap-3 w-full p-3 text-sm font-bold text-red-500 hover:bg-red-50 rounded-xl transition-colors text-left">
+                          Sign Out
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               </div>
             )}
           </div>
 
           {/* MOBILE CONTROLS */}
-          <div className="flex md:hidden items-center gap-2">
+          <div className="flex md:hidden items-center gap-3">
               {user && (
-                  <div className="flex items-center gap-2 mr-1">
-                    <span className="text-[10px] font-black text-[#14532d] uppercase">
-                      {isAdmin ? 'Admin' : user.displayName?.split(' ')[0]}
-                    </span>
-                    <img 
-                      src={isAdmin ? adminPlaceholder : user.photoURL} 
-                      referrerPolicy="no-referrer" 
-                      className="w-7 h-7 rounded-full border border-[#16a34a] object-cover" 
-                      alt="user" 
-                    />
-                  </div>
+                <div className="flex items-center gap-2">
+                   {isAdmin && (
+                     <button onClick={() => router.push('/admin')} className="text-[9px] font-black bg-emerald-100 text-emerald-700 px-2 py-1 rounded-md uppercase">Admin</button>
+                   )}
+                   <img 
+                    src={isAdmin ? adminPlaceholder : user.photoURL} 
+                    referrerPolicy="no-referrer" 
+                    className="w-8 h-8 rounded-full border border-[#16a34a] object-cover" 
+                    alt="user" 
+                  />
+                </div>
               )}
-              <button className="p-2.5 rounded-xl bg-gray-50 text-[#14532d]" onClick={() => setIsMobileMenuOpen(true)}>
-                  <i className="fas fa-bars text-lg"></i>
+              <button 
+                className="p-2.5 rounded-xl bg-gray-50 text-[#14532d]" 
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              >
+                <i className={`fas ${isMobileMenuOpen ? 'fa-times' : 'fa-bars'} text-lg w-5`}></i>
               </button>
           </div>
         </div>
       </nav>
 
-      {/* MOBILE NAV DRAWER */}
+      {/* MOBILE NAV DROPDOWN (FLUSH UNDER HEADER) */}
       <AnimatePresence>
         {isMobileMenuOpen && (
-          <div className="z-50 md:hidden">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsMobileMenuOpen(false)} className="fixed inset-0 bg-black/60 backdrop-blur-md z-[110]" />
-            <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'tween', duration: 0.4 }} className="fixed top-0 right-0 h-screen w-[85%] bg-[#14532d] z-[120] flex flex-col shadow-2xl">
-              <div className="p-8 flex justify-between items-center border-b border-white/10 text-white">
-                <span className="font-black uppercase text-sm">Navigation</span>
-                <button onClick={() => setIsMobileMenuOpen(false)} className="text-white"><i className="fas fa-times text-2xl"></i></button>
-              </div>
-              <div className="p-8 flex flex-col space-y-4">
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsMobileMenuOpen(false)} className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[110] md:hidden" />
+            
+            <motion.div 
+              initial={{ y: '-100%' }} 
+              animate={{ y: 0 }} 
+              exit={{ y: '-100%' }} 
+              transition={{ type: 'tween', duration: 0.3 }} 
+              className="fixed top-15 left-0 right-0 bg-[#14532d] z-[120] pb-8 px-6 shadow-2xl md:hidden"
+            >
+              <div className="flex flex-col pt-4">
                 {navLinks.map((link) => (
-                  <Link key={link.name} href={link.href} onClick={() => setIsMobileMenuOpen(false)} className={`py-4 text-xl font-bold border-b border-white/5 ${pathname === link.href ? 'text-[#16a34a]' : 'text-white/80'}`}>
+                  <Link key={link.name} href={link.href} onClick={() => setIsMobileMenuOpen(false)} className={`py-4 text-lg font-bold border-b border-white/5 flex justify-between items-center ${pathname === link.href ? 'text-emerald-400' : 'text-white/90'}`}>
                     {link.name}
+                    {pathname === link.href && <div className="w-1.5 h-1.5 rounded-full bg-[#16a34a]" />}
                   </Link>
                 ))}
+
+                {isAdmin && (
+                  <div className="flex flex-col py-2">
+                    <Link href="/admin" onClick={() => setIsMobileMenuOpen(false)} className="py-4 text-sm font-black text-emerald-400 uppercase tracking-widest flex items-center gap-3">
+                      <i className="fas fa-car"></i> Car Admin
+                    </Link>
+                    <Link href="/admin/fashion" onClick={() => setIsMobileMenuOpen(false)} className="py-4 text-sm font-black text-amber-400 uppercase tracking-widest flex items-center gap-3">
+                      <i className="fas fa-tshirt"></i> Fashion Admin
+                    </Link>
+                  </div>
+                )}
               </div>
 
-              <div className="text-center mt-auto p-8 border-t border-white/10 bg-black/20 text-white">
+              <div className="mt-4 pt-6 border-t border-white/10 flex items-center justify-between">
                 {user ? (
-                  <div className="flex flex-col gap-4">
-                    <div className="overflow-hidden">
-                      <p className="font-bold text-sm truncate">{user.displayName}</p>
-                      <p className="text-[10px] text-white/50 truncate font-medium">{user.email}</p>
+                  <>
+                    <div>
+                      <p className="mb-2 font-bold text-yellow-400 text-sm">Welcome {user.displayName?.split(' ')[0]}</p>
+                      <button onClick={handleLogout} className="bg-red-700 py-1 px-3 text-sm text-white rounded-lg font-bold uppercase mt-1">Log Out</button>
                     </div>
-                    <button onClick={handleLogout} className="w-full py-4 rounded-2xl bg-white text-[#14532d] font-black uppercase text-[10px] tracking-widest active:scale-95 transition-transform">
-                      Sign Out
-                    </button>
-                  </div>
+                    <img src={isAdmin ? adminPlaceholder : user.photoURL} className="w-10 h-10 rounded-full border border-white/20" alt="" />
+                  </>
                 ) : (
-                  <button onClick={handleGoogleLogin} className="w-full py-4 bg-[#16a34a] text-white rounded-2xl font-black uppercase text-[10px]">
-                    Sign In
-                  </button>
+                  <button onClick={handleGoogleLogin} className="w-full py-4 bg-white text-emerald-800 rounded-xl font-black uppercase text-[10px]">Sign In</button>
                 )}
               </div>
             </motion.div>
-          </div>
+          </>
         )}
       </AnimatePresence>
     </header>

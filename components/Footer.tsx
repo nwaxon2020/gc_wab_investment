@@ -88,7 +88,7 @@ export default function Footer() {
     }
 
     return (
-        <footer className="relative z-10 py-16 bg-[#0a0a0a] border-t border-white/5 text-gray-400">
+        <footer className="relative z-[300] py-16 bg-[#0a0a0a] border-t border-white/5 text-gray-400">
             <div className="container mx-auto px-4">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
                     
@@ -172,8 +172,8 @@ export default function Footer() {
             </div>
 
             {showAdminOverlay && (
-                <div className="mt-18 fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-md p-3">
-                    <div className="bg-[#0f0f0f] w-full max-w-md rounded-[3rem] p-6 md:p-10 border border-white/10 shadow-[0_0_50px_rgba(22,163,74,0.1)] relative">
+                <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-md p-3">
+                    <div className="bg-[#0f0f0f] w-full max-w-md rounded-xl p-4 md:p-6 md:p-10 border border-white/10 shadow-[0_0_50px_rgba(22,163,74,0.1)] relative">
                         <button 
                             onClick={() => setShowAdminOverlay(false)} 
                             className="absolute top-8 right-8 text-gray-500 hover:text-white"

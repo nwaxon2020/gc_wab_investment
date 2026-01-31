@@ -144,7 +144,7 @@ export default function AboutPageUi() {
       </section>
 
       {/* Core Values Section */}
-      <section className="bg-gray-50 py-20 px-6">
+      <section className="bg-gray-50 py-20 px-4 md:px-6">
         <div className="max-w-7xl mx-auto text-center mb-16">
           <h2 className="text-3xl font-black text-gray-900 uppercase tracking-tight">Our Core Pillars</h2>
         </div>
@@ -155,7 +155,7 @@ export default function AboutPageUi() {
             { icon: <FaUsers />, title: "Community", desc: "Building lasting relationships with our Nigerian clients through exceptional service." },
             { icon: <FaLightbulb />, title: "Innovation", desc: "Constantly evolving to bring global trends in fashion and tech to the local market." }
           ].map((item, idx) => (
-            <div key={idx} className="bg-white p-10 rounded-[2rem] shadow-sm hover:shadow-xl transition-all text-center group border border-gray-100">
+            <div key={idx} className="bg-white p-10 rounded-xl shadow-sm hover:shadow-xl transition-all text-center group border border-gray-100">
               <div className="text-emerald-600 text-3xl mb-6 flex justify-center group-hover:scale-110 transition-transform">{item.icon}</div>
               <h4 className="text-lg font-black text-gray-900 uppercase mb-4 tracking-tighter">{item.title}</h4>
               <p className="text-gray-500 text-sm leading-relaxed font-medium">{item.desc}</p>
@@ -168,10 +168,10 @@ export default function AboutPageUi() {
       <section className="py-24 px-6 text-center">
         <h2 className="text-4xl font-black text-gray-900 mb-6 uppercase tracking-tight">Experience GC WAB Today</h2>
         <div className="flex flex-wrap justify-center gap-4">
-          <Link href="/cars" className="bg-gray-900 text-white px-10 py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-emerald-700 transition-all shadow-lg active:scale-95">
+          <Link href="/cars" className="bg-gray-900 text-white px-10 py-4 rounded-xl font-black uppercase text-[10px] tracking-widest hover:bg-emerald-700 transition-all shadow-lg active:scale-95">
             View Car Fleet
           </Link>
-          <Link href="/shop" className="border-2 border-gray-900 text-gray-900 px-5 py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-gray-100 transition-all shadow-lg active:scale-95">
+          <Link href="/shop" className="border-2 border-gray-900 text-gray-900 px-5 py-4 rounded-xl font-black uppercase text-[10px] tracking-widest hover:bg-gray-100 transition-all shadow-lg active:scale-95">
             Fashion Collection  
           </Link>
         </div>

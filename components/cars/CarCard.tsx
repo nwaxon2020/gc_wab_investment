@@ -38,10 +38,9 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
   const [isVideoPlaying, setIsVideoPlaying] = useState<boolean>(false);
   const [isLiked, setIsLiked] = useState<boolean>(false);
   const [dbLikes, setDbLikes] = useState<number>(car.likes || 0); 
-  const [contactInfo, setContactInfo] = useState({ whatsapp: "+2347034632037" });
+  const [contactInfo, setContactInfo] = useState({ whatsapp: "07034632037" });
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  // 1. Fetch Contact Logic
   useEffect(() => {
     const fetchContactInfo = async () => {
       try {
@@ -57,7 +56,6 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
     fetchContactInfo();
   }, []);
 
-  // 2. Real-time Likes Sync
   useEffect(() => {
     const unsub = onSnapshot(doc(db, 'vehicles', String(car.id)), (docSnap) => {
       if (docSnap.exists()) {
@@ -116,9 +114,10 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
   
   const openWhatsApp = () => { 
     const message = `Hello! I'm interested in the ${car.name} ${car.model}. Please provide more details.`;
-    // Sanitizing the number to remove spaces/chars before opening
-    const cleanNumber = contactInfo.whatsapp.replace(/\D/g, '');
-    window.open(`https://wa.me/${cleanNumber}?text=${encodeURIComponent(message)}`, '_blank'); 
+    let digits = contactInfo.whatsapp.replace(/\D/g, '');
+    if (digits.startsWith('0')) digits = digits.substring(1);
+    const finalPhone = digits.startsWith('234') ? digits : `234${digits}`;
+    window.open(`https://wa.me/${finalPhone}?text=${encodeURIComponent(message)}`, '_blank'); 
   };
 
   const handleDragEnd = (event: any, info: any) => {
@@ -184,7 +183,7 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
               </span>
               <h3 className="text-sm md:text-lg font-semibold md:font-bold text-white pb-1 md:pb-0">
                 {car.name} {" "}
-                <small className="md:hidden font-medium text-gray-400 text-[10px] md:text-sm">{car.model} {" "}<span className='text-yellow-500 text-[10px]'>{car.specs[7]}</span></small>
+                <small className="md:hidden font-medium text-gray-400 text-[11px] md:text-sm">{car.model} {" "}<span className='text-yellow-500 text-[11px]'>{car.specs[7]}</span></small>
               </h3>
               <p className="hidden md:block text-gray-400 text-sm">{car.model} {" "}<span className='text-yellow-500 text-xs'>{car.specs[7]}</span></p>
             </div>
@@ -212,7 +211,6 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
             >
               <FaWhatsapp className="text-xl" /> <span className='text-sm hidden md:flex'>Contact Us</span>
             </button>
-            
             <button
               onClick={handleVideoPlay}
               className="bg-gradient-to-r from-red-500 to-pink-600 text-white py-1 md:py-2 rounded-lg font-bold hover:shadow-lg transition-all duration-300 flex items-center justify-center"
@@ -223,7 +221,6 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
         </div>
       </motion.div>
 
-      {/* Modals remain with same logic but using dynamic contact and trim info */}
       <AnimatePresence>
         {isVideoPlaying && (
           <div className="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-4" onClick={handleVideoClose}>
@@ -233,41 +230,33 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
             </div>
           </div>
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
         {showFullImage && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/98 z-[110] flex flex-col items-center justify-center touch-none" onClick={() => setShowFullImage(false)}>
             <button className="absolute top-8 right-8 text-white text-3xl z-[120]"><FaTimes /></button>
             <motion.div key={imgIndex} drag="x" dragConstraints={{ left: 0, right: 0 }} onDragEnd={handleDragEnd} initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }} className="w-full h-full flex items-center justify-center cursor-grab active:cursor-grabbing">
               <img src={car.images[imgIndex]} className="max-w-full max-h-[85vh] object-contain pointer-events-none" />
             </motion.div>
-            <div className="absolute bottom-10 flex gap-3">
-              {car.images.map((_, i) => (
-                <div key={i} onClick={(e) => { e.stopPropagation(); setImgIndex(i); }} className={`w-2.5 h-2.5 rounded-full cursor-pointer transition-all ${imgIndex === i ? 'bg-blue-500 scale-125' : 'bg-gray-600'}`} />
-              ))}
-            </div>
           </motion.div>
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
         {showDetails && (
           <div className="fixed inset-0 bg-black/95 z-50 overflow-y-auto p-1.5" onClick={() => setShowDetails(false)}>
-            <div className="bg-gradient-to-br from-gray-900 to-black rounded-3xl max-w-6xl mx-auto my-4 overflow-hidden border border-gray-800" onClick={(e) => e.stopPropagation()}>
-              <div className="grid md:grid-cols-2 gap-8 p-3 md:p-6 lg:p-10">
-                <div>
-                  <div className="relative h-70 md:h-96 rounded-2xl overflow-hidden mb-4 cursor-zoom-in" onClick={() => setShowFullImage(true)}>
+            <div className="bg-gradient-to-br from-gray-900 to-black rounded-xl max-w-6xl mx-auto my-4 overflow-hidden border border-gray-800" onClick={(e) => e.stopPropagation()}>
+              <div className="grid md:grid-cols-2 gap-8 p-3 md:p-6">
+                <div className="flex flex-col gap-2 md:gap-4 overflow-hidden">
+                  <div className="relative h-70 md:h-96 rounded-xl overflow-hidden cursor-zoom-in" onClick={() => setShowFullImage(true)}>
                     <img src={selectedImage} alt={car.name} className="w-full h-full object-cover" />
-                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 bg-black/20 backdrop-blur-sm p-2 rounded-full">
-                       {car.images.map((_, i) => (
-                         <div key={i} className={`w-1.5 h-1.5 rounded-full ${imgIndex === i ? 'bg-white' : 'bg-white/40'}`} />
-                       ))}
-                    </div>
                   </div>
-                  <div className="flex gap-3 overflow-x-auto p-2 scrollbar-hide snap-x">
+                  
+                  {/* Updated Thumbnail Div with Padding and No Border */}
+                  <div className="w-full flex gap-3 overflow-x-auto p-3 md:p-4 snap-x scrollbar-hide">
                     {car.images.map((image, index) => (
-                      <button key={index} onClick={() => setImgIndex(index)} className={`flex-shrink-0 snap-start w-20 h-14 md:w-24 md:h-18 rounded-xl overflow-hidden border-2 transition-all duration-300 ${imgIndex === index ? 'border-blue-500 scale-105 shadow-[0_0_10px_rgba(59,130,246,0.5)]' : 'border-gray-700 hover:border-gray-500'}`}>
+                      <button 
+                        key={index} 
+                        onClick={() => setImgIndex(index)} 
+                        className={`flex-shrink-0 snap-start w-20 h-16 md:w-24 md:h-18 rounded-xl overflow-hidden transition-all duration-300 border-none ${imgIndex === index ? 'scale-110 shadow-[0_0_8px_rgba(59,130,246,0.5)]' : 'opacity-60 hover:opacity-100 hover:scale-105'}`}
+                      >
                         <img src={image} className="w-full h-full object-cover" />
                       </button>
                     ))}

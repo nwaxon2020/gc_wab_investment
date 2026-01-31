@@ -75,7 +75,7 @@ export default function News({ category: propCategory }: NewsProps) {
             key={idx}
             target="_blank"
             rel="noopener noreferrer"
-            className="group block bg-white rounded-[1.5rem] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-gray-100 flex flex-col"
+            className="group block bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-gray-100 flex flex-col"
           >
             <div className="relative h-36 overflow-hidden">
               <img 

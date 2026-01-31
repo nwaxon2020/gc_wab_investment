@@ -78,24 +78,36 @@ html {
   background-clip: text;
 }
 
-/* Custom scrollbar */
+/* 1. The width of the scrollbar (Vertical & Horizontal) */
 ::-webkit-scrollbar {
-  width: 4px;
+  width: 5px;
+  height: 5px; 
 }
 
+/* 2. The Background (Track) */
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #0a0a0a; /* Matches your dark theme background */
+  border-radius: 10px;
 }
 
+/* 3. The Draggable Bar (Thumb) */
 ::-webkit-scrollbar-thumb {
-  background: var(--brand-green);
-  border-radius: 2px;
+  background: #065f46; /* Emerald-800 */
+  border-radius: 10px;
+  border: 1px solid #0a0a0a; /* Creates a slight "gap" look */
+  transition: all 0.3s ease;
 }
 
+/* 4. Hover Effect */
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--brand-dark);
+  background: #10b981; /* Emerald-500 for a bright glow on hover */
 }
 
+/* 5. Firefox Support (Standard property) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #065f46 #0a0a0a;
+}
 
 
 /* FASHON ANIMATION ++++++++++++++++++++++++++++++++++++ */
