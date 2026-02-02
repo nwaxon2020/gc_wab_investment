@@ -3,13 +3,14 @@
 import { useState, useEffect } from 'react';
 import { db, auth } from '@/lib/firebaseConfig';
 import { signOut } from 'firebase/auth';
-import { collection, onSnapshot, doc, deleteDoc, query, orderBy, getDoc, setDoc } from 'firebase/firestore';
+import { collection, onSnapshot, doc, deleteDoc, query, orderBy, getDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
-import { FaCar, FaPlus, FaArrowLeft, FaSignOutAlt, FaTrash, FaEdit, FaExclamationTriangle, FaTimes, FaImage, FaCalculator, FaWhatsapp, FaEnvelope, FaSave } from 'react-icons/fa';
+import { FaCar, FaPlus, FaArrowLeft, FaSignOutAlt, FaTrash, FaEdit, FaExclamationTriangle, FaTimes, FaImage, FaCalculator, FaInfoCircle } from 'react-icons/fa';
 import AddVehicleForm from '@/components/admin/car-admin/AddVehicleForm';
 import { toast } from 'sonner';
 import HeroSettingsEditor from '@/components/admin/car-admin/HeroSettingsEditor';
 import FinanceSettingsEditor from '@/components/admin/car-admin/FinanceSettingsEditor';
+import AboutSettingsEditor from '@/components/admin/car-admin/AboutSettingsEditor'; 
 
 export default function CarAdminUi() {
   const router = useRouter();
@@ -17,13 +18,10 @@ export default function CarAdminUi() {
   const [showAddForm, setShowAddForm] = useState(false); 
   const [showHeroEditor, setShowHeroEditor] = useState(false); 
   const [showFinanceEditor, setShowFinanceEditor] = useState(false);
+  const [showAboutEditor, setShowAboutEditor] = useState(false); 
   const [vehicles, setVehicles] = useState<any[]>([]);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-
-  // New states for Contact Info
-  const [contactInfo, setContactInfo] = useState({ whatsapp: '', email: '' });
-  const [savingContact, setSavingContact] = useState(false);
 
   useEffect(() => {
     const checkAuth = () => {
@@ -38,24 +36,14 @@ export default function CarAdminUi() {
     return () => clearTimeout(timer);
   }, [router]);
 
-  // Fetch Vehicles and Contact Info
   useEffect(() => {
     const q = query(collection(db, 'vehicles'), orderBy('createdAt', 'desc'));
     const unsubVehicles = onSnapshot(q, (snapshot) => {
       setVehicles(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     });
-
-    const fetchContacts = async () => {
-      const docRef = doc(db, 'site_settings', 'contacts');
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) setContactInfo(docSnap.data() as any);
-    };
-    fetchContacts();
-
     return () => unsubVehicles();
   }, []);
 
- 
   const handleLogout = async () => {
     await signOut(auth);
     router.push('/');
@@ -99,27 +87,44 @@ export default function CarAdminUi() {
         </div>
         
         <div className="flex flex-col md:flex-row flex-wrap gap-3 w-full md:w-auto">
+          {/* SECONDARY EDITORS GROUP */}
           <div className='flex justify-center items-center gap-3 w-full md:w-auto'>
-            <button onClick={() => { setShowFinanceEditor(!showFinanceEditor); setShowHeroEditor(false); setShowAddForm(false); }} className={`flex flex-1 md:flex-none justify-center items-center gap-3 px-3 md:px-5 py-4 rounded-xl font-black uppercase text-xs transition-all border ${showFinanceEditor ? 'bg-emerald-500 text-black border-emerald-500' : 'bg-transparent text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/10'}`}>
-              {showFinanceEditor ? <><FaTimes /> Close</> : <><FaCalculator /> Finance Rates</>}
+            <button onClick={() => { setShowFinanceEditor(!showFinanceEditor); setShowHeroEditor(false); setShowAddForm(false); setShowAboutEditor(false); }} className={`flex flex-1 md:flex-none justify-center items-center gap-3 px-3 md:px-5 py-4 rounded-xl font-black uppercase text-xs transition-all border ${showFinanceEditor ? 'bg-emerald-500 text-black border-emerald-500' : 'bg-transparent text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/10'}`}>
+              {showFinanceEditor ? <FaTimes /> : <FaCalculator />} {showFinanceEditor ? 'Close' : 'Rates'}
             </button>
-            <button onClick={() => { setShowHeroEditor(!showHeroEditor); setShowFinanceEditor(false); setShowAddForm(false); }} className={`flex flex-1 md:flex-none justify-center items-center gap-3 px-3 md:px-5 py-4 rounded-xl font-black uppercase text-xs transition-all border ${showHeroEditor ? 'bg-emerald-500 text-black border-emerald-500' : 'bg-transparent text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/10'}`}>
-              {showHeroEditor ? <><FaTimes /> Close</> : <><FaImage />Car Hero Pg</>}
+            <button onClick={() => { setShowHeroEditor(!showHeroEditor); setShowFinanceEditor(false); setShowAddForm(false); setShowAboutEditor(false); }} className={`flex flex-1 md:flex-none justify-center items-center gap-3 px-3 md:px-5 py-4 rounded-xl font-black uppercase text-xs transition-all border ${showHeroEditor ? 'bg-emerald-500 text-black border-emerald-500' : 'bg-transparent text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/10'}`}>
+              {showHeroEditor ? <FaTimes /> : <FaImage />} {showHeroEditor ? 'Close' : 'Hero'}
             </button>
           </div>
-          <button onClick={() => { setShowAddForm(!showAddForm); setShowHeroEditor(false); setShowFinanceEditor(false); }} className={`flex flex-1 md:flex-none justify-center items-center gap-3 px-8 py-4 rounded-xl font-black uppercase text-xs transition-all ${showAddForm ? 'bg-gray-700 text-white' : 'bg-emerald-500 text-white'}`}>
-            {showAddForm ? <FaTimes /> : <FaPlus />} {showAddForm ? 'Close' : 'Add Car'}
-          </button>
+
+          {/* PRIMARY ACTIONS GROUP: ABOUT AND ADD CAR TOGETHER */}
+          <div className='flex justify-center items-center gap-3 w-full md:w-auto'>
+            <button 
+              onClick={() => { setShowAboutEditor(!showAboutEditor); setShowAddForm(false); setShowFinanceEditor(false); setShowHeroEditor(false); }} 
+              className={`flex-1 md:flex-none flex items-center justify-center gap-3 px-6 py-4 rounded-xl font-black uppercase text-xs transition-all border ${showAboutEditor ? 'bg-blue-600 text-white border-blue-600' : 'bg-transparent text-blue-500 border-blue-500/30 hover:bg-blue-500/10'}`}
+            >
+              {showAboutEditor ? <FaTimes /> : <FaInfoCircle />} {showAboutEditor ? 'Close' : 'About Pg'}
+            </button>
+            
+            <button 
+              onClick={() => { setShowAddForm(!showAddForm); setShowAboutEditor(false); setShowHeroEditor(false); setShowFinanceEditor(false); }} 
+              className={`flex-1 md:flex-none flex items-center justify-center gap-3 px-6 py-4 rounded-xl font-black uppercase text-xs transition-all ${showAddForm ? 'bg-gray-700 text-white' : 'bg-emerald-500 text-white'}`}
+            >
+              {showAddForm ? <FaTimes /> : <FaPlus />} {showAddForm ? 'Close' : 'Add Car'}
+            </button>
+          </div>
         </div>
       </div>
 
+      {/* RENDER ACTIVE EDITORS */}
+      {showAboutEditor && <div className="mb-16"><AboutSettingsEditor /></div>}
       {showFinanceEditor && <div className="mb-16"><FinanceSettingsEditor /></div>}
       {showHeroEditor && <div className="mb-16"><HeroSettingsEditor /></div>}
       {showAddForm && <div className="mb-16"><AddVehicleForm onSuccess={() => setShowAddForm(false)} /></div>}
 
-      {/* SYSTEM STATUS CARD WITH CONTACT INPUTS */}
+      {/* SYSTEM STATUS CARD */}
       <div className="grid gap-4">
-        <div className="bg-gray-900 border border-white/5 p-2 py-4 md:p-6 rounded-xl flex flex-col lg:flex-row items-center justify-between gap-8 group hover:border-emerald-500/30 transition-all shadow-2xl">
+        <div className="bg-gray-900 border border-white/5 p-4 md:p-6 rounded-xl flex flex-col lg:flex-row items-center justify-between gap-8 group hover:border-emerald-500/30 transition-all shadow-2xl">
           <div className="flex items-center gap-4 w-full lg:w-auto">
             <div className="w-16 h-16 bg-gray-800 rounded-xl flex items-center justify-center text-emerald-500 shrink-0">
               <FaCar size={24} />
@@ -129,7 +134,6 @@ export default function CarAdminUi() {
               <p className="text-gray-500 text-xs font-medium">Database Sync Active ({vehicles.length} Units)</p>
             </div>
           </div>
-
           <span className="hidden lg:block text-[10px] bg-emerald-500/10 text-emerald-500 px-4 py-1.5 rounded-full font-black uppercase tracking-tighter">Live</span>
         </div>
       </div>

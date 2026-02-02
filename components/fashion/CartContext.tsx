@@ -1,10 +1,9 @@
-// context/CartContext.tsx
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 export interface CartItem {
-  productId: number;
+  productId: string; // CHANGED FROM number TO string FOR FIREBASE COMPATIBILITY
   name: string;
   price: number;
   size: string;
@@ -16,8 +15,8 @@ export interface CartItem {
 interface CartContextType {
   items: CartItem[];
   addToCart: (item: Omit<CartItem, 'quantity'> & { quantity?: number }) => void;
-  removeItem: (productId: number, size: string, color: string) => void;
-  updateQuantity: (productId: number, size: string, color: string, quantity: number) => void;
+  removeItem: (productId: string, size: string, color: string) => void; // string
+  updateQuantity: (productId: string, size: string, color: string, quantity: number) => void; // string
   clearCart: () => void;
   totalAmount: number;
   itemCount: number;
@@ -26,13 +25,12 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  // Use a boolean to track if we have loaded the initial data
   const [items, setItems] = useState<CartItem[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Load cart from localStorage on mount
   useEffect(() => {
-    const savedCart = localStorage.getItem('gc_wab_cart'); // Use consistent key
+    const savedCart = localStorage.getItem('gc_wab_cart');
     if (savedCart) {
       try {
         setItems(JSON.parse(savedCart));
@@ -40,7 +38,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         console.error('Error loading cart:', error);
       }
     }
-    setIsLoaded(true); // Mark as loaded so we don't overwrite with empty array
+    setIsLoaded(true);
   }, []);
 
   // Save cart to localStorage whenever it changes
@@ -69,7 +67,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  const removeItem = (productId: number, size: string, color: string) => {
+  const removeItem = (productId: string, size: string, color: string) => {
     setItems(currentItems => 
       currentItems.filter(
         item => !(item.productId === productId && item.size === size && item.color === color)
@@ -77,7 +75,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     );
   };
 
-  const updateQuantity = (productId: number, size: string, color: string, quantity: number) => {
+  const updateQuantity = (productId: string, size: string, color: string, quantity: number) => {
     if (quantity < 1) {
       removeItem(productId, size, color);
       return;
@@ -94,7 +92,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const clearCart = () => {
     setItems([]);
-    localStorage.removeItem('gc_wab_cart'); // Force clear the specific key
+    localStorage.removeItem('gc_wab_cart'); 
   };
 
   const totalAmount = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);

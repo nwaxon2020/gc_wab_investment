@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { db } from '@/lib/firebaseConfig';
 import { doc, onSnapshot } from 'firebase/firestore';
-import { FaCalculator, FaCheckCircle, FaShieldAlt, FaLightbulb, FaPhoneAlt, FaDownload } from 'react-icons/fa';
+import { FaCalculator, FaCheckCircle, FaShieldAlt, FaLightbulb, FaPhoneAlt, FaDownload, FaEnvelope } from 'react-icons/fa';
 
 export default function EngagementSectionUi() {
   const [loanAmount, setLoanAmount] = useState(2000000);
@@ -12,6 +12,7 @@ export default function EngagementSectionUi() {
   // --- DYNAMIC CONFIG STATE WITH FALLBACKS ---
   const [config, setConfig] = useState({
     phoneNumber: "+2347034632037",
+    email: "info@gcwab.com", // Default fallback email
     rate6m: 1.10,
     rate12m: 1.15,
     rate24m: 1.25,
@@ -24,8 +25,8 @@ export default function EngagementSectionUi() {
       if (docSnap.exists()) {
         const data = docSnap.data();
         setConfig({
-          // Use DB value OR fallback to hardcoded original
           phoneNumber: data.phoneNumber || "+2347034632037",
+          email: data.email || "info@gcwab.com", // Fetch dynamic email
           rate6m: data.rate6m || 1.10,
           rate12m: data.rate12m || 1.15,
           rate24m: data.rate24m || 1.25,
@@ -38,7 +39,7 @@ export default function EngagementSectionUi() {
 
   // --- LOGIC: DYNAMIC INTEREST CALCULATION USING CONFIG ---
   const monthlyPayment = useMemo(() => {
-    let interestMultiplier = config.rate6m; // Default to 6M rate
+    let interestMultiplier = config.rate6m; 
     
     if (months === 12) interestMultiplier = config.rate12m;
     if (months === 24) interestMultiplier = config.rate24m;
@@ -95,7 +96,7 @@ Generated from your Car Collection App.
           
           <div className="space-y-6">
             <div>
-              <label className="block text-xs uppercase font-bold text-gray-500 mb-2 text-white">Price Amount (₦)</label>
+              <label className="block text-xs uppercase font-bold text-gray-500 mb-2">Price Amount (₦)</label>
               <input 
                 type="range" min="500000" max="15000000" step="100000" 
                 value={loanAmount} 
@@ -106,7 +107,7 @@ Generated from your Car Collection App.
             </div>
 
             <div>
-              <label className="block text-xs uppercase font-bold text-gray-500 mb-2 text-white">Duration ({months} Months)</label>
+              <label className="block text-xs uppercase font-bold text-gray-500 mb-2">Duration ({months} Months)</label>
               <div className="flex gap-2">
                 {[6, 12, 24, 36].map((m) => (
                   <button 
@@ -167,14 +168,21 @@ Generated from your Car Collection App.
       </div>
 
       {/* 3. TRUST BANNER */}
-      <div className="mt-12 bg-emerald-600 rounded-xl p-8  flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl shadow-emerald-900/20">
+      <div className="mt-12 bg-emerald-600 rounded-xl p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl shadow-emerald-900/20">
         <div className="flex items-center gap-6">
           <div className="bg-white/20 p-4 rounded-2xl">
             <FaShieldAlt className="text-3xl text-white" />
           </div>
           <div>
             <h3 className="text-xl font-black text-white">100% Verified Documents</h3>
-            <p className="text-emerald-100 text-sm">Every car listed here has been physically inspected by our team.</p>
+            <p className="text-emerald-100 text-sm mb-2">Every car listed here has been physically inspected by our team.</p>
+            {/* --- DYNAMIC EMAIL BOX --- */}
+            <div className='bg-emerald-700/50 text-white text-[11px] font-bold rounded-lg px-3 py-1.5 flex items-center gap-2 border border-white/10'>
+              <FaEnvelope className="text-emerald-300" />
+              <a href={`mailto:${config.email}`} className="hover:underline">
+                Or Email Us @: {config.email}
+              </a>
+            </div>
           </div>
         </div>
         

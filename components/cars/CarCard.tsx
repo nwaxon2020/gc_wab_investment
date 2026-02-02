@@ -38,16 +38,21 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
   const [isVideoPlaying, setIsVideoPlaying] = useState<boolean>(false);
   const [isLiked, setIsLiked] = useState<boolean>(false);
   const [dbLikes, setDbLikes] = useState<number>(car.likes || 0); 
-  const [contactInfo, setContactInfo] = useState({ whatsapp: "07034632037" });
+  
+  // Updated state to match Finance Editor storage
+  const [contactInfo, setContactInfo] = useState({ phoneNumber: "+2347034632037" });
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
+  // --- FETCH CONTACT FROM FINANCE EDITOR CONFIG ---
   useEffect(() => {
     const fetchContactInfo = async () => {
       try {
-        const docRef = doc(db, 'site_settings', 'contacts');
+        // Points to the same document your FinanceSettingsEditor saves to
+        const docRef = doc(db, 'site_settings', 'engagement_config');
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          setContactInfo(docSnap.data() as { whatsapp: string });
+          const data = docSnap.data();
+          setContactInfo({ phoneNumber: data.phoneNumber || "+2347034632037" });
         }
       } catch (e) {
         console.error("Error loading contacts:", e);
@@ -112,11 +117,11 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
   const handleVideoPlay = () => { setIsVideoPlaying(true); videoRef.current?.play(); };
   const handleVideoClose = () => { setIsVideoPlaying(false); videoRef.current?.pause(); };
   
+  // --- UPDATED WHATSAPP LOGIC ---
   const openWhatsApp = () => { 
     const message = `Hello! I'm interested in the ${car.name} ${car.model}. Please provide more details.`;
-    let digits = contactInfo.whatsapp.replace(/\D/g, '');
-    if (digits.startsWith('0')) digits = digits.substring(1);
-    const finalPhone = digits.startsWith('234') ? digits : `234${digits}`;
+    // Standardize number: remove '+' and any non-digits
+    const finalPhone = contactInfo.phoneNumber.replace(/\D/g, '');
     window.open(`https://wa.me/${finalPhone}?text=${encodeURIComponent(message)}`, '_blank'); 
   };
 
@@ -249,7 +254,6 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
                     <img src={selectedImage} alt={car.name} className="w-full h-full object-cover" />
                   </div>
                   
-                  {/* Updated Thumbnail Div with Padding and No Border */}
                   <div className="w-full flex gap-3 overflow-x-auto p-3 md:p-4 snap-x scrollbar-hide">
                     {car.images.map((image, index) => (
                       <button 

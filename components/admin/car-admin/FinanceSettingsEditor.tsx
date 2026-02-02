@@ -3,13 +3,14 @@
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebaseConfig';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { FaPercentage, FaPhoneAlt, FaSave, FaCalculator } from 'react-icons/fa';
+import { FaPercentage, FaPhoneAlt, FaSave, FaCalculator, FaEnvelope } from 'react-icons/fa';
 import { toast } from 'sonner';
 
 export default function FinanceSettingsEditor() {
     const [updating, setUpdating] = useState(false);
     const [settings, setSettings] = useState({
         phoneNumber: '+2347034632037',
+        email: 'info@gcwab.com', // Added Email
         rate6m: 1.10,
         rate12m: 1.15,
         rate24m: 1.25,
@@ -27,28 +28,14 @@ export default function FinanceSettingsEditor() {
         fetchSettings();
     }, []);
 
-    // --- LOGIC: AUTO-FORMAT PHONE NUMBER ---
     const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        let val = e.target.value;
-        
-        // Remove everything except numbers
-        val = val.replace(/\D/g, '');
-
-        // If user pasted/typed 234 at the start, remove it
-        if (val.startsWith('234')) {
-            val = val.substring(3);
-        }
-
-        // If user typed 0 at the start (e.g. 070...), remove it
-        if (val.startsWith('0')) {
-            val = val.substring(1);
-        }
-
+        let val = e.target.value.replace(/\D/g, '');
+        if (val.startsWith('234')) val = val.substring(3);
+        if (val.startsWith('0')) val = val.substring(1);
         setSettings({ ...settings, phoneNumber: `+234${val}` });
     };
 
     const handleSave = async () => {
-        // Simple validation to ensure the number isn't just "+234"
         if (settings.phoneNumber.length < 10) {
             toast.error("Please enter a valid phone number");
             return;
@@ -76,7 +63,7 @@ export default function FinanceSettingsEditor() {
                 </div>
                 <div>
                     <h2 className="text-white font-black text-sm uppercase tracking-tight">Finance & Contact</h2>
-                    <p className="text-gray-500 text-[10px] uppercase font-bold tracking-widest">Manage rates and support line</p>
+                    <p className="text-gray-500 text-[10px] uppercase font-bold tracking-widest">Manage rates and support info</p>
                 </div>
             </div>
 
@@ -87,28 +74,36 @@ export default function FinanceSettingsEditor() {
                         <FaPhoneAlt className="text-emerald-500" /> Support Phone Number
                     </label>
                     <div className="relative flex items-center">
-                        {/* Static Prefix Visual */}
-                        <span className="absolute left-4 text-emerald-500 font-bold text-xs select-none">
-                            +234
-                        </span>
+                        <span className="absolute left-4 text-emerald-500 font-bold text-xs select-none">+234</span>
                         <input 
                             type="text"
-                            // Show only the part after +234 in the input for cleaner UX
                             value={settings.phoneNumber.replace('+234', '')}
                             onChange={handlePhoneChange}
                             className="w-full bg-black/50 border border-white/10 p-3 pl-14 rounded-xl text-xs text-white outline-none focus:border-emerald-500 transition-all"
                             placeholder="7034632037"
                         />
                     </div>
-                    <p className="text-[9px] text-gray-600 italic px-1">Number will be saved as: {settings.phoneNumber}</p>
+                </div>
+
+                {/* --- ADDED EMAIL INPUT --- */}
+                <div className="space-y-1">
+                    <label className="text-[10px] font-black text-gray-500 uppercase flex items-center gap-2">
+                        <FaEnvelope className="text-emerald-500" /> Support Email Address
+                    </label>
+                    <input 
+                        type="email"
+                        value={settings.email}
+                        onChange={(e) => setSettings({...settings, email: e.target.value})}
+                        className="w-full bg-black/50 border border-white/10 p-3 rounded-xl text-xs text-white outline-none focus:border-emerald-500 transition-all"
+                        placeholder="contact@company.com"
+                    />
                 </div>
 
                 {/* Rates Grid */}
                 <div className="bg-black/20 p-4 rounded-xl border border-white/5 space-y-4">
                     <label className="text-[10px] font-black text-gray-500 uppercase flex items-center gap-2">
-                        <FaPercentage className="text-emerald-500" /> Interest Multipliers (Term Rates)
+                        <FaPercentage className="text-emerald-500" /> Interest Multipliers
                     </label>
-                    
                     <div className="grid grid-cols-2 gap-4">
                         {[
                             { label: "6 Months", key: "rate6m" },
@@ -123,7 +118,7 @@ export default function FinanceSettingsEditor() {
                                     step="0.01"
                                     value={settings[rate.key as keyof typeof settings]}
                                     onChange={(e) => setSettings({...settings, [rate.key]: parseFloat(e.target.value)})}
-                                    className="w-full bg-gray-900 border border-white/10 p-2 rounded-lg text-xs text-emerald-400 outline-none focus:border-emerald-500"
+                                    className="w-full bg-gray-900 border border-white/10 p-2 rounded-lg text-xs text-emerald-400 outline-none"
                                 />
                             </div>
                         ))}

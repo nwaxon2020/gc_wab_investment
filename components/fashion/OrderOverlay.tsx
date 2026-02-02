@@ -1,11 +1,22 @@
-// components/fashion/OrderOverlay.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
 import { FaTimes, FaShoppingCart, FaPlus, FaMinus } from 'react-icons/fa';
 import { toast } from 'sonner';
-import type { Product } from '@/components/fashion/Products';
 import { useCart } from '@/components/fashion/CartContext';
+
+// Standardized local interface to ensure ID is a string (Firebase compatible)
+interface Product {
+  id: string; 
+  name: string;
+  price: number;
+  likes: number;
+  stock: number;
+  category: string;
+  description?: string;
+  sizes: { size: string; inStock: boolean }[];
+  colors: { name: string; code: string; imageUrl: string }[];
+}
 
 interface OrderOverlayProps {
   product: Product;
@@ -32,8 +43,9 @@ export default function OrderOverlay({ product, onClose, initialColorIndex = 0 }
       return;
     }
 
+    // Now correctly passing product.id as a string to CartContext
     addToCart({
-      productId: product.id,
+      productId: product.id, 
       name: product.name,
       price: product.price,
       size: selectedSize,
@@ -48,10 +60,12 @@ export default function OrderOverlay({ product, onClose, initialColorIndex = 0 }
 
   const totalAmount = product.price * quantity;
 
-  // Formatting Helper for Naira
   const formatNaira = (amount: number) => {
     return amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
+
+  // Guard against undefined colors during backend sync
+  if (!product || !product.colors || product.colors.length === 0) return null;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-2">
@@ -60,14 +74,13 @@ export default function OrderOverlay({ product, onClose, initialColorIndex = 0 }
       <div className="relative bg-white rounded-3xl md:rounded-2xl max-w-sm w-full shadow-2xl animate-in fade-in zoom-in-95 duration-300 max-h-[90vh] overflow-y-auto no-scrollbar">
         
         <div className="flex justify-between items-center px-5 py-3 border-b border-gray-50 sticky top-0 bg-white z-10">
-          <h2 className="text-sm font-black text-emerald-700 uppercase tracking-tighter">Add to Bag</h2>
+          <h2 className="text-sm font-black text-emerald-700 uppercase tracking-tighter italic">Add to Bag</h2>
           <button onClick={onClose} className="p-1.5 text-gray-400 hover:text-red-500 transition-all">
             <FaTimes size={16} />
           </button>
         </div>
 
         <div className="p-4">
-          {/* Mini Product Summary - Qty moved here and made dynamic */}
           <div className="flex gap-3 p-2 bg-emerald-50 rounded-xl mb-3">
             <div className="w-20 h-20 bg-white rounded-lg overflow-hidden shrink-0 border border-emerald-100">
               <img 
@@ -78,9 +91,8 @@ export default function OrderOverlay({ product, onClose, initialColorIndex = 0 }
               />
             </div>
             <div className="flex flex-col justify-center min-w-0">
-              <h3 className="text-xs font-bold text-gray-900 truncate leading-tight">{product.name}</h3>
+              <h3 className="text-xs font-bold text-gray-900 truncate leading-tight uppercase tracking-tight">{product.name}</h3>
               <p className="font-black text-emerald-700 text-sm">₦{formatNaira(product.price)}</p>
-              {/* DYNAMIC QTY: Subtracts current selection from stock */}
               <p className="text-[9px] font-semibold text-gray-400 font-bold uppercase tracking-tighter mt-0.5">
                 Stock Qty: {Math.max(0, product.stock - quantity)}
               </p>
@@ -95,7 +107,7 @@ export default function OrderOverlay({ product, onClose, initialColorIndex = 0 }
                   key={index}
                   onClick={() => setSelectedColorIndex(index)}
                   className={`p-0.5 rounded-full border transition-all ${
-                    selectedColorIndex === index ? 'border-emerald-600' : 'border-transparent'
+                    selectedColorIndex === index ? 'border-emerald-600 scale-110' : 'border-transparent'
                   }`}
                 >
                   <div className="w-5 h-5 rounded-full border border-black/5" style={{ backgroundColor: color.code }} />
@@ -115,7 +127,7 @@ export default function OrderOverlay({ product, onClose, initialColorIndex = 0 }
                     selectedSize === sizeObj.size
                       ? 'border-emerald-600 bg-emerald-700 text-white'
                       : 'border-emerald-100 bg-emerald-50 text-gray-600'
-                  } ${!sizeObj.inStock ? 'opacity-20 cursor-not-allowed' : ''}`}
+                  } ${!sizeObj.inStock ? 'opacity-20 cursor-not-allowed line-through' : ''}`}
                   disabled={!sizeObj.inStock}
                 >
                   {sizeObj.size}
@@ -152,7 +164,7 @@ export default function OrderOverlay({ product, onClose, initialColorIndex = 0 }
 
           <button
             onClick={handleAddToCart}
-            className="w-full mt-4 bg-emerald-700 text-white py-3 rounded-xl hover:bg-emerald-800 transition-all flex items-center justify-center gap-2 font-black uppercase text-[10px] tracking-[0.2em] shadow-lg shadow-emerald-900/20 active:scale-95"
+            className="w-full mt-4 bg-emerald-700 text-white py-4 rounded-xl hover:bg-emerald-800 transition-all flex items-center justify-center gap-2 font-black uppercase text-[10px] tracking-[0.2em] shadow-lg shadow-emerald-900/20 active:scale-95"
           >
             <FaShoppingCart size={12} />
             Add to Bag

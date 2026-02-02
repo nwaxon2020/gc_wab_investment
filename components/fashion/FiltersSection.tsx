@@ -1,9 +1,9 @@
-// components/FiltersSection.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
 import { FaSearch, FaFilter, FaTimes } from 'react-icons/fa';
 
+// Standardized categories to match your Firestore data
 const categories = ['All', 'Dresses', 'Jackets', 'Shirts', 'Shoes', 'Bags', 'Suits', 'Wrist Watch', 'Bra'];
 
 export const priceRanges = [
@@ -31,7 +31,10 @@ export default function FiltersSection({ onSearch, onCategoryChange, onPriceChan
   }, [searchTerm, onSearch]);
 
   const handleCategoryClick = (cat: string) => {
+    // We update the local UI state
     setSelectedCategory(cat);
+    // We immediately pass the category to the parent (ShopPageUi)
+    // Parent then passes it to ProductGrid which handles the .filter()
     onCategoryChange(cat);
   };
 
@@ -52,7 +55,7 @@ export default function FiltersSection({ onSearch, onCategoryChange, onPriceChan
 
   return (
     <>
-      <div className="bg-gray-900 text-white px-2 md:px-12 py-3 mb-8">
+      <div className="bg-gray-900 text-white px-2 md:px-12 py-3 md:py-4 mb-8">
         <div className="flex flex-row gap-2 md:gap-4 mb-3">
           <div className="flex-1 relative">
             <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -70,7 +73,7 @@ export default function FiltersSection({ onSearch, onCategoryChange, onPriceChan
             )}
           </div>
 
-          <button onClick={() => setShowMobileFilters(true)} className="md:hidden flex items-center justify-center gap-2 px-4 py-2 border rounded-xl">
+          <button onClick={() => setShowMobileFilters(true)} className="md:hidden flex items-center justify-center gap-2 px-4 py-2 border rounded-xl bg-gray-800 border-gray-700">
             <FaFilter /> Filters
           </button>
         </div>
@@ -78,14 +81,16 @@ export default function FiltersSection({ onSearch, onCategoryChange, onPriceChan
         {/* Desktop Filters */}
         <div className="mt-2 hidden md:flex flex-wrap gap-6 items-end">
           <div className="flex-1">
-            <h3 className="font-bold mb-2 text-xs uppercase text-emerald-400">Category</h3>
+            <h3 className="font-bold mb-2 text-xs uppercase text-emerald-400 tracking-widest">Category</h3>
             <div className="flex flex-wrap gap-2">
               {categories.map((cat) => (
                 <button
                   key={cat}
                   onClick={() => handleCategoryClick(cat)}
-                  className={`px-3 py-1.5 text-[10px] font-bold uppercase rounded-full border transition-all ${
-                    selectedCategory === cat ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-gray-700 hover:border-emerald-500'
+                  className={`px-3 py-1.5 text-[10px] font-bold uppercase rounded-full border transition-all duration-300 ${
+                    selectedCategory === cat 
+                      ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-500/20' 
+                      : 'border-gray-700 text-gray-400 hover:border-emerald-500 hover:text-emerald-400'
                   }`}
                 >
                   {cat}
@@ -95,14 +100,16 @@ export default function FiltersSection({ onSearch, onCategoryChange, onPriceChan
           </div>
 
           <div>
-            <h3 className="font-bold mb-2 text-xs uppercase text-emerald-400">Price Range</h3>
+            <h3 className="font-bold mb-2 text-xs uppercase text-emerald-400 tracking-widest">Price Range</h3>
             <div className="flex flex-wrap gap-2">
               {priceRanges.map((range) => (
                 <button
                   key={range.label}
                   onClick={() => handlePriceClick(range.label)}
-                  className={`px-3 py-1.5 text-[10px] font-bold uppercase rounded-full border transition-all ${
-                    selectedPrice === range.label ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-gray-700 hover:border-emerald-500'
+                  className={`px-3 py-1.5 text-[10px] font-bold uppercase rounded-full border transition-all duration-300 ${
+                    selectedPrice === range.label 
+                      ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-500/20' 
+                      : 'border-gray-700 text-gray-400 hover:border-emerald-500 hover:text-emerald-400'
                   }`}
                 >
                   {range.label}
@@ -112,8 +119,8 @@ export default function FiltersSection({ onSearch, onCategoryChange, onPriceChan
           </div>
 
           {(selectedCategory !== 'All' || selectedPrice || searchTerm) && (
-            <button onClick={clearAll} className="text-xs font-bold text-red-400 hover:underline pb-2">
-              Clear All
+            <button onClick={clearAll} className="text-[10px] font-black uppercase text-red-500 hover:text-red-400 transition-colors pb-2 tracking-tighter">
+              Clear All Filters
             </button>
           )}
         </div>
@@ -123,22 +130,22 @@ export default function FiltersSection({ onSearch, onCategoryChange, onPriceChan
       {showMobileFilters && (
         <div className="fixed inset-0 z-[150] md:hidden">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setShowMobileFilters(false)} />
-          <div className="absolute right-0 top-0 h-full w-72 bg-gray-900 p-6 shadow-xl flex flex-col">
+          <div className="absolute right-0 top-0 h-full w-72 bg-gray-900 p-6 shadow-xl flex flex-col border-l border-white/5">
             <div className="flex justify-between items-center mb-8">
-              <h2 className="text-xl font-black text-emerald-500">FILTERS</h2>
-              <button onClick={() => setShowMobileFilters(false)}><FaTimes className="text-white" /></button>
+              <h2 className="text-xl font-black text-emerald-500 tracking-tighter italic">FILTERS</h2>
+              <button onClick={() => setShowMobileFilters(false)} className="p-2 bg-gray-800 rounded-full"><FaTimes className="text-white" /></button>
             </div>
             
             <div className="flex-1 overflow-y-auto space-y-8 no-scrollbar">
               <div>
-                <h3 className="text-xs font-black text-gray-500 uppercase mb-4 tracking-widest">Category</h3>
+                <h3 className="text-[10px] font-black text-gray-500 uppercase mb-4 tracking-widest">Category</h3>
                 <div className="grid grid-cols-2 gap-2">
                   {categories.map((cat) => (
                     <button
                       key={cat}
                       onClick={() => handleCategoryClick(cat)}
-                      className={`py-2 px-3 text-[10px] font-bold rounded-lg border ${
-                        selectedCategory === cat ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-gray-800 text-gray-400'
+                      className={`py-2 px-3 text-[10px] font-bold rounded-lg border transition-all ${
+                        selectedCategory === cat ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-gray-800 text-gray-400 bg-gray-800/50'
                       }`}
                     >
                       {cat}
@@ -148,14 +155,14 @@ export default function FiltersSection({ onSearch, onCategoryChange, onPriceChan
               </div>
 
               <div>
-                <h3 className="text-xs font-black text-gray-500 uppercase mb-4 tracking-widest">Price Range</h3>
+                <h3 className="text-[10px] font-black text-gray-500 uppercase mb-4 tracking-widest">Price Range</h3>
                 <div className="space-y-2">
                   {priceRanges.map((range) => (
                     <button
                       key={range.label}
                       onClick={() => handlePriceClick(range.label)}
-                      className={`w-full py-3 px-4 text-[10px] font-bold rounded-lg border text-left ${
-                        selectedPrice === range.label ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-gray-800 text-gray-400'
+                      className={`w-full py-3 px-4 text-[10px] font-bold rounded-lg border text-left transition-all ${
+                        selectedPrice === range.label ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-gray-800 text-gray-400 bg-gray-800/50'
                       }`}
                     >
                       {range.label}
@@ -165,7 +172,7 @@ export default function FiltersSection({ onSearch, onCategoryChange, onPriceChan
               </div>
             </div>
 
-            <button onClick={() => setShowMobileFilters(false)} className="mt-6 w-full bg-emerald-600 text-white py-4 rounded-xl font-black uppercase text-xs tracking-widest">
+            <button onClick={() => setShowMobileFilters(false)} className="mt-6 w-full bg-emerald-600 text-white py-4 rounded-xl font-black uppercase text-xs tracking-widest shadow-lg active:scale-95 transition-all">
               Apply Filters
             </button>
           </div>

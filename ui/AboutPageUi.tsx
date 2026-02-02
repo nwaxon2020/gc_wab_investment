@@ -1,28 +1,50 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaCar, FaTshirt, FaCheckCircle, FaUsers, FaLightbulb, FaMapMarkerAlt } from 'react-icons/fa';
 import Link from 'next/link';
+import { db } from '@/lib/firebaseConfig';
+import { doc, getDoc } from 'firebase/firestore';
 
 export default function AboutPageUi() {
   const [view, setView] = useState<'cars' | 'fashion'>('cars');
+  const [aboutData, setAboutData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    const fetchAboutData = async () => {
+      try {
+        const docRef = doc(db, 'site_settings', 'about_page');
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setAboutData(docSnap.data());
+        }
+      } catch (error) {
+        console.error("Error fetching about page data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAboutData();
+  }, []);
+
+  // Map the Firebase data to your existing locationData structure
   const locationData = {
     cars: {
-      title: "Automotive Showroom",
-      address: "Lekki Phase 1, Lagos, Nigeria",
-      // Luxury car showroom image
-      image: "https://cdn.businessday.ng/2019/10/car-selling-websites-nigeria-1280x720.jpg",
-      mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15858.46132714275!2d3.4682!3d6.4474!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x103bf452da6c2873%3A0x384160965e88410c!2sLekki%20Phase%201!5e0!3m2!1sen!2sng!4v1700000000000"
+      title: aboutData?.carsLocation?.title || "Automotive Showroom",
+      address: aboutData?.carsLocation?.address || "Lekki Phase 1, Lagos, Nigeria",
+      image: aboutData?.carsLocation?.image || "https://cdn.businessday.ng/2019/10/car-selling-websites-nigeria-1280x720.jpg",
+      mapUrl: aboutData?.carsLocation?.mapUrl || "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3964.7285906511196!2d3.47353!3d6.428!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x103bf53280e8948d%3A0x4d05e4de62646c23!2sLekki%20Phase%201%2C%20Lagos!5e0!3m2!1sen!2sng!4v1700000000000"
     },
     fashion: {
-      title: "Fashion Design Studio",
-      address: "Victoria Island, Lagos, Nigeria",
-      // High-end fashion studio image
-      image: "https://lh5.googleusercontent.com/proxy/ge7LjxnA-5GxftETYKNyeZGJxHkZh53eFQL-cxxM7Qu6_mJJ5mEycDVQAZ9wKuZF9_v1iIM1qWNBO8AzB6kcH_tkSDkPxYS4o4kgsGLQfA0ZdBM",
-      mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15858.74540243454!2d3.4245!3d6.4281!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x103bf53280e8948d%3A0x4d05e4de6b61803d!2sVictoria%20Island%2C%20Lagos!5e0!3m2!1sen!2sng!4v1700000000000"
+      title: aboutData?.fashionLocation?.title || "Fashion Design Studio",
+      address: aboutData?.fashionLocation?.address || "Victoria Island, Lagos, Nigeria",
+      image: aboutData?.fashionLocation?.image || "https://lh5.googleusercontent.com/proxy/ge7LjxnA-5GxftETYKNyeZGJxHkZh53eFQL-cxxM7Qu6_mJJ5mEycDVQAZ9wKuZF9_v1iIM1qWNBO8AzB6kcH_tkSDkPxYS4o4kgsGLQfA0ZdBM",
+      mapUrl: aboutData?.fashionLocation?.mapUrl || "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3964.654!2d3.424!3d6.428!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x103bf53280e8948d%3A0x4d05e4de62646c23!2sVictoria%20Island%2C%20Lagos!5e0!3m2!1sen!2sng!4v1700000000000"
     }
   };
+
+  if (loading) return <div className="min-h-screen bg-white flex items-center justify-center text-emerald-600 font-bold uppercase tracking-widest">Loading...</div>;
 
   return (
     <div className="bg-white min-h-screen">
@@ -30,7 +52,7 @@ export default function AboutPageUi() {
       <section className="relative h-[50vh] flex items-center justify-center bg-gray-900 overflow-hidden">
         <div className="absolute inset-0 opacity-40">
           <img 
-            src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&q=80&w=1920" 
+            src={aboutData?.heroImage || "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&q=80&w=1920"} 
             alt="GC WAB Luxury" 
             loading="lazy"
             className="w-full h-full object-cover"
@@ -52,14 +74,10 @@ export default function AboutPageUi() {
           <div className="space-y-8">
             <div>
               <h2 className="text-3xl font-black text-gray-900 uppercase mb-6 tracking-tight">
-                Where Elegance <br /> <span className="text-emerald-600">Meets the Road</span>
+                {aboutData?.mainTitle || "Where Elegance Meets the Road"}
               </h2>
-              <p className="text-gray-600 leading-relaxed mb-6 font-medium">
-                <strong>Founded in Nigeria January, 2019</strong>, GC WAB emerged from a simple vision:  From our curated fashion collections that define Nigerian elegance to our premium automobile
-
-              fleet, we provide a 360-degree luxury experience. Whether you are dressing for a corporate
-
-              event or seeking a vehicle that commands respect, GC WAB is your trusted partner.
+              <p className="text-gray-600 leading-relaxed mb-6 font-medium whitespace-pre-line">
+                {aboutData?.mainDescription || `Founded in Nigeria January, 2019, GC WAB emerged from a simple vision: From our curated fashion collections that define Nigerian elegance to our premium automobile fleet, we provide a 360-degree luxury experience.`}
               </p>
             </div>
 
@@ -129,14 +147,17 @@ export default function AboutPageUi() {
             <div className="absolute -top-4 -left-4 w-24 h-24 border-t-4 border-l-4 border-emerald-500 z-10"></div>
             <div className="aspect-[4/5] bg-gray-200 rounded-xl overflow-hidden shadow-2xl relative border-4 border-white">
               <img 
-                src="/ceo3.png" 
+                src={aboutData?.ceoImage || "/ceo3.png"} 
                 alt="CEO of GC WAB" 
                 className="w-full h-full object-cover"
                 loading="lazy"
               />
               <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/90 to-transparent text-white">
-                <h3 className="text-2xl font-black uppercase tracking-tighter">Your Name</h3>
+                <h3 className="text-2xl font-black uppercase tracking-tighter">{aboutData?.ceoName || "Your Name"}</h3>
                 <p className="text-emerald-400 font-bold text-[10px] uppercase tracking-[0.3em]">Founder & CEO</p>
+              </div>
+              <div className='absolute top-5 left-5 w-14 h-14 md:w-25 md:h-25 rounded-full border-2 border-white overflow-hidden'>
+                <img src="/home_logo.jpeg" alt="site logo" />
               </div>
             </div>
           </div>
