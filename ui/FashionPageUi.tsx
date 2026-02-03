@@ -9,22 +9,34 @@ import CartSidebar from '@/components/fashion/CartSidebar';
 import FiltersSection from '@/components/fashion/FiltersSection';
 import News from "@/components/News";
 import FashionContactUi from '@/components/fashion/ContactCard';
+import ProductDetailOverlay from '@/components/fashion/ProductDetailOverlay';
+import OrderOverlay from '@/components/fashion/OrderOverlay'; // IMPORT OrderOverlay
+import { toast } from 'sonner';
 
 export default function ShopPageUi() {
-    // 1. Filter States
     const [searchTerm, setSearchTerm] = useState('');
     const [category, setCategory] = useState('All');
     const [priceRange, setPriceRange] = useState<string | null>(null);
 
-    // 2. Real-time Products State
     const [products, setProducts] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
-    // 3. Fetch from Firebase
-    useEffect(() => {
-        // We order by updatedAt so edited/new items jump to the top for customers
-        const q = query(collection(db, 'fashion_products'), orderBy('updatedAt', 'desc'));
+    const [selectedProduct, setSelectedProduct] = useState<any>(null);
+    const [showOverlay, setShowOverlay] = useState(false);
+    const [showOrderOverlay, setShowOrderOverlay] = useState(false); // NEW STATE
 
+    const handleHeroProductClick = (productId: string) => {
+        const fullProduct = products.find(p => p.id === productId);
+        if (fullProduct) {
+            setSelectedProduct(fullProduct);
+            setShowOverlay(true);
+        } else {
+            toast.error("Product details not found");
+        }
+    };
+
+    useEffect(() => {
+        const q = query(collection(db, 'fashion_products'), orderBy('updatedAt', 'desc'));
         const unsub = onSnapshot(q, (snapshot) => {
             const fetchedProducts = snapshot.docs.map(doc => ({
                 id: doc.id,
@@ -33,29 +45,22 @@ export default function ShopPageUi() {
             setProducts(fetchedProducts);
             setLoading(false);
         }, (error) => {
-            console.error("Firebase Read Error:", error);
             setLoading(false);
         });
-
         return () => unsub();
     }, []);
 
     return (
         <>
             <main className="min-h-screen">
-                <FashionHeroSection />
-                
+                <FashionHeroSection onProductClick={handleHeroProductClick} />
                 <div className=" mx-auto">
-                    {/* Filters Section */}
                     <FiltersSection 
                         onSearch={setSearchTerm} 
                         onCategoryChange={setCategory} 
                         onPriceChange={setPriceRange} 
                     />
-
                     <div id='shophere' className="scroll-mt-20" />
-
-                    {/* Product Grid with Loading State */}
                     {loading ? (
                         <div className="py-20 text-center">
                             <div className="w-10 h-10 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
@@ -71,6 +76,28 @@ export default function ShopPageUi() {
                     )}
                 </div>
             </main>
+
+            {showOverlay && selectedProduct && (
+                <ProductDetailOverlay 
+                    product={selectedProduct} 
+                    onClose={() => {
+                        setShowOverlay(false);
+                        setSelectedProduct(null);
+                    }} 
+                    onAddToCart={() => {
+                        setShowOverlay(false); // Close details
+                        setShowOrderOverlay(true); // Open order
+                    }} 
+                />
+            )}
+
+            {/* NEW: Global Order Overlay for Hero Route */}
+            {showOrderOverlay && selectedProduct && (
+                <OrderOverlay 
+                    product={selectedProduct} 
+                    onClose={() => setShowOrderOverlay(false)} 
+                />
+            )}
              
             <CartSidebar />
             <News />

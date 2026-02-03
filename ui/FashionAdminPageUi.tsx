@@ -5,16 +5,20 @@ import { auth, db } from '@/lib/firebaseConfig';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { collection, onSnapshot, query, orderBy, deleteDoc, doc } from 'firebase/firestore';
-import { FaTshirt, FaPlus, FaArrowLeft, FaSignOutAlt, FaBoxes, FaAd, FaTimes, FaEdit, FaTrash, FaLayerGroup } from 'react-icons/fa';
+import { FaTshirt, FaPlus, FaArrowLeft, FaSignOutAlt, FaBoxes, FaAd, FaTimes, FaEdit, FaTrash, FaLayerGroup, FaUserTie, FaHome } from 'react-icons/fa';
 import { toast } from 'sonner';
 import FashionAdsEditor from '@/components/admin/fashion-admin/FashionAdsEditor';
 import AddProductForm from '@/components/admin/fashion-admin/AddProductForm';
+import FashionContactEditor from '@/components/admin/fashion-admin/ContactEditor';
+import FashionHomeEditor from '@/components/admin/fashion-admin/FashionHomeEditor'; // Import new Home Editor
 
 export default function FashionAdmin() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [showAdsEditor, setShowAdsEditor] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showContactEditor, setShowContactEditor] = useState(false);
+  const [showHomeEditor, setShowHomeEditor] = useState(false); // New Toggle State
   const [products, setProducts] = useState<any[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -34,9 +38,7 @@ export default function FashionAdmin() {
 
   // Sync Products List
   useEffect(() => {
-    // Changed 'createdAt' to 'updatedAt' to bring edits to the top
     const q = query(collection(db, 'fashion_products'), orderBy('updatedAt', 'desc'));
-    
     const unsubProducts = onSnapshot(q, (snapshot) => {
       setProducts(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
     });
@@ -52,6 +54,8 @@ export default function FashionAdmin() {
     setEditingId(id);
     setShowAddForm(true);
     setShowAdsEditor(false);
+    setShowContactEditor(false);
+    setShowHomeEditor(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -75,7 +79,7 @@ export default function FashionAdmin() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-3 md:px-6 pb-20">
+    <div className="max-w-7xl mx-auto px-3 md:px-6 pb-20">
       {/* TOP ACTION BAR */}
       <div className="flex justify-between items-center mb-8 pt-10">
         <button onClick={() => router.push('/admin')} className="group flex items-center gap-2 text-gray-500 hover:text-emerald-500 transition-colors font-bold uppercase text-[10px] tracking-widest">
@@ -92,20 +96,48 @@ export default function FashionAdmin() {
           <h1 className="text-4xl font-black text-white uppercase tracking-tighter italic">Fashion <span className="text-emerald-500">Vault</span></h1>
           <p className="text-gray-500 font-bold text-xs uppercase tracking-widest mt-1">Store & Stock Management</p>
         </div>
-        <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
-          <button onClick={() => { setShowAdsEditor(!showAdsEditor); setShowAddForm(false); }} className={`flex-1 md:flex-none justify-center items-center gap-3 px-6 py-4 rounded-xl font-black uppercase text-xs transition-all border ${showAdsEditor ? 'bg-emerald-500 text-black border-emerald-500' : 'bg-transparent text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/10'}`}>
+        
+        {/* ACTION BUTTONS */}
+        <div className="flex flex-wrap md:flex-nowrap gap-3 w-full md:w-auto">
+          {/* Home Editor Toggle */}
+          <button 
+            onClick={() => { setShowHomeEditor(!showHomeEditor); setShowAdsEditor(false); setShowAddForm(false); setShowContactEditor(false); }} 
+            className={`flex-1 md:flex-none justify-center items-center gap-3 px-2 md:px-6 py-4 rounded-xl font-black uppercase text-xs transition-all border ${showHomeEditor ? 'bg-amber-500 text-black border-amber-500' : 'bg-transparent text-amber-500 border-amber-500/30 hover:bg-amber-500/10'}`}
+          >
+            {showHomeEditor ? <><FaTimes className="inline mr-2" /> Close</> : <><FaHome className="inline mr-2" /> Home</>}
+          </button>
+
+          {/* Contact Toggle */}
+          <button 
+            onClick={() => { setShowContactEditor(!showContactEditor); setShowAdsEditor(false); setShowAddForm(false); setShowHomeEditor(false); }} 
+            className={`flex-1 md:flex-none justify-center items-center gap-3 px-2 md:px-6 py-4 rounded-xl font-black uppercase text-xs transition-all border ${showContactEditor ? 'bg-emerald-500 text-black border-emerald-500' : 'bg-transparent text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/10'}`}
+          >
+            {showContactEditor ? <><FaTimes className="inline mr-2" /> Close</> : <><FaUserTie className="inline mr-2" /> Contacts</>}
+          </button>
+
+          {/* Hero Toggle */}
+          <button 
+            onClick={() => { setShowAdsEditor(!showAdsEditor); setShowAddForm(false); setShowContactEditor(false); setShowHomeEditor(false); }} 
+            className={`flex-1 md:flex-none justify-center items-center gap-3 px-2 md:px-6 py-4 rounded-xl font-black uppercase text-xs transition-all border ${showAdsEditor ? 'bg-emerald-500 text-black border-emerald-500' : 'bg-transparent text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/10'}`}
+          >
             {showAdsEditor ? <><FaTimes className="inline mr-2" /> Close</> : <><FaAd className="inline mr-2" /> Hero Banner</>}
           </button>
-          <button onClick={() => { setShowAddForm(!showAddForm); setShowAdsEditor(false); setEditingId(null); }} className={`w-full md:w-55 hover:bg-emerald-500 text-white px-8 py-4 rounded-xl flex items-center justify-center gap-3 font-black uppercase text-xs transition-all active:scale-95 shadow-lg shadow-emerald-900/20 ${showAddForm ? 'bg-gray-700' : 'bg-emerald-600'}`}>
+
+          {/* Add Product Toggle */}
+          <button 
+            onClick={() => { setShowAddForm(!showAddForm); setShowAdsEditor(false); setShowContactEditor(false); setShowHomeEditor(false); setEditingId(null); }} 
+            className={`w-full md:w-55 hover:bg-emerald-500 text-white px-2 md:px-6 py-4 rounded-xl flex items-center justify-center gap-3 font-black uppercase text-xs transition-all active:scale-95 shadow-lg shadow-emerald-900/20 ${showAddForm ? 'bg-gray-700' : 'bg-emerald-600'}`}
+          >
             {showAddForm ? <FaTimes /> : <FaPlus />} {showAddForm ? 'Close' : 'Add New Item'}
           </button>
         </div>
       </div>
 
-      {/* RENDER AD EDITOR */}
+      {/* RENDER EDITORS */}
+      {showHomeEditor && <div className="mb-16 animate-in fade-in slide-in-from-top-4 duration-300"><FashionHomeEditor /></div>}
+      {showContactEditor && <div className="mb-16 animate-in fade-in slide-in-from-top-4 duration-300"><FashionContactEditor /></div>}
       {showAdsEditor && <div className="mb-16 animate-in fade-in slide-in-from-top-4 duration-300"><FashionAdsEditor /></div>}
 
-      {/* RENDER ADD/EDIT PRODUCT FORM */}
       {showAddForm && (
         <div className="mb-16 animate-in fade-in slide-in-from-top-4 duration-300">
           <AddProductForm editingId={editingId} onComplete={() => { setShowAddForm(false); setEditingId(null); }} />
@@ -113,7 +145,7 @@ export default function FashionAdmin() {
       )}
 
       {/* STOCK OVERVIEW & SNAPSHOT GRID */}
-      {!showAdsEditor && !showAddForm && (
+      {!showAdsEditor && !showAddForm && !showContactEditor && !showHomeEditor && (
         <div className="space-y-12">
           {/* STATS COUNT CARD */}
           <div className="bg-gray-900/50 border border-white/5 p-4 rounded-xl flex items-center justify-between group hover:border-emerald-500/30 transition-all">
@@ -143,7 +175,6 @@ export default function FashionAdmin() {
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-4">
                 {products.map((p) => (
                   <div key={p.id} className="bg-white rounded-xl overflow-hidden shadow-xl group relative flex flex-col hover:-translate-y-2 transition-all duration-300">
-                    {/* Floating Actions (Visible on Mobile, Hover on Desktop) */}
                     <div className="absolute top-2 right-2 z-10 flex flex-col gap-2 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                       <button onClick={() => handleEdit(p.id)} className="bg-white p-2.5 rounded-lg text-emerald-800 shadow-xl hover:bg-emerald-800 hover:text-white transition-all">
                         <FaEdit size={14} />
@@ -155,7 +186,6 @@ export default function FashionAdmin() {
 
                     <div className="h-48 overflow-hidden relative">
                       <img src={p.colors[0]?.imageUrl} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                      {/* Color Swatches Overlay */}
                       <div className="absolute bottom-2 left-2 flex -space-x-1.5">
                         {p.colors.slice(0, 3).map((c: any, i: number) => (
                           <div key={i} className="w-3 h-3 rounded-full border border-white shadow-sm" style={{ backgroundColor: c.code }} />

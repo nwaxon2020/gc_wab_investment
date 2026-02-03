@@ -9,9 +9,8 @@ import OrderOverlay from '@/components/fashion/OrderOverlay';
 import ProductDetailOverlay from '@/components/fashion/ProductDetailOverlay';
 import { useCart } from '@/components/fashion/CartContext';
 
-// Standardized Interface for Backend Data
 export interface Product {
-  id: string; // Firebase IDs are always strings
+  id: string;
   name: string;
   price: number;
   likes: number;
@@ -34,12 +33,10 @@ export default function ClothCard({ product }: { product: Product }) {
   
   const getBaseReviews = () => Array.isArray(product.reviews) ? product.reviews.length : 0;
   const [reviewCount, setReviewCount] = useState(getBaseReviews());
-  const { addToCart } = useCart();
 
   const syncData = useCallback(() => {
     const likedProducts = JSON.parse(localStorage.getItem('gc_fashion_likes') || '{}');
     setIsLiked(!!likedProducts[product.id]);
-
     const allStoredReviews = JSON.parse(localStorage.getItem('gc_product_reviews') || '{}');
     const storedReviews = allStoredReviews[product.id] || [];
     setReviewCount(getBaseReviews() + storedReviews.length);
@@ -56,7 +53,6 @@ export default function ClothCard({ product }: { product: Product }) {
     if (!product.id) return;
     const productRef = doc(db, 'fashion_products', product.id);
     const likedProducts = JSON.parse(localStorage.getItem('gc_fashion_likes') || '{}');
-
     try {
       if (isLiked) {
         delete likedProducts[product.id];
@@ -88,11 +84,9 @@ export default function ClothCard({ product }: { product: Product }) {
             ))}
           </div>
         </div>
-
         <button onClick={toggleLike} className="absolute top-2 right-2 z-20 bg-white/90 backdrop-blur-md p-2.5 rounded-full shadow-sm active:scale-90 transition-transform">
           <FaHeart className={isLiked ? 'text-red-500' : 'text-gray-300'} size={12} />
         </button>
-
         <div className="relative h-42 md:h-65 overflow-hidden cursor-pointer" onClick={() => setShowDetailOverlay(true)}>
           <img src={product.colors[selectedColorIndex].imageUrl} alt={product.name} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
           <div className={`hidden md:flex flex-col gap-2 absolute inset-0 bg-emerald-900/20 items-center justify-center transition-opacity duration-300 ${hover ? 'opacity-100' : 'opacity-0'}`}>
@@ -104,7 +98,6 @@ export default function ClothCard({ product }: { product: Product }) {
             </div>
           </div>
         </div>
-
         <div className="relative py-2 px-1.5 md:p-3 space-y-2">
             <div className="flex flex-col justify-between items-start">
                 <div>
@@ -129,7 +122,16 @@ export default function ClothCard({ product }: { product: Product }) {
       </div>
 
       {showOrderOverlay && <OrderOverlay product={product} onClose={() => setShowOrderOverlay(false)} initialColorIndex={selectedColorIndex} />}
-      {showDetailOverlay && <ProductDetailOverlay product={product} onClose={() => setShowDetailOverlay(false)} onAddToCart={() => setShowOrderOverlay(true)} />}
+      {showDetailOverlay && (
+        <ProductDetailOverlay 
+            product={product} 
+            onClose={() => setShowDetailOverlay(false)} 
+            onAddToCart={() => {
+                setShowDetailOverlay(false); // Close details
+                setShowOrderOverlay(true); // Open order
+            }} 
+        />
+      )}
     </>
   );
 }

@@ -140,6 +140,7 @@ export default function ProductDetailOverlay({ product, onClose, onAddToCart }: 
 
   const deleteReview = (id: string) => {
     const storedReviews = JSON.parse(localStorage.getItem('gc_product_reviews') || '{}');
+    // Logic: Filter out the review with the matching ID
     storedReviews[product.id] = (storedReviews[product.id] || []).filter((r: Review) => r.id !== id);
     localStorage.setItem('gc_product_reviews', JSON.stringify(storedReviews));
     syncData();
@@ -238,13 +239,21 @@ export default function ProductDetailOverlay({ product, onClose, onAddToCart }: 
           </div>
           
           <div className="sticky bottom-0 left-0 right-0 p-4 md:px-10 md:pb-8 md:pt-2 bg-white border-none z-50">
-            <button onClick={onAddToCart} className="w-full bg-emerald-700 text-white py-4 rounded-xl hover:bg-emerald-800 transition-all flex items-center justify-center gap-3 font-bold uppercase text-xs tracking-widest active:scale-95 shadow-lg shadow-emerald-900/20"><FaShoppingCart /> Add to Cart</button>
+            <button 
+              onClick={() => {
+                // Logic: Call the parent's add to cart handler then close detail view
+                onAddToCart();
+              }} 
+              className="w-full bg-emerald-700 text-white py-4 rounded-xl hover:bg-emerald-800 transition-all flex items-center justify-center gap-3 font-bold uppercase text-xs tracking-widest active:scale-95 shadow-lg shadow-emerald-900/20"
+            >
+              <FaShoppingCart /> Add to Cart
+            </button>
           </div>
         </div>
       </div>
 
       {isLightboxOpen && (
-        <div className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center" onClick={() => setIsLightboxOpen(false)}>
+        <div className="fixed inset-0 z-[100] bg-black flex items-center justify-center" onClick={() => setIsLightboxOpen(false)}>
           <button className="absolute top-6 right-6 text-white z-[110] active:scale-90 transition-transform"><FaTimes size={32} /></button>
           <button onClick={(e) => { e.stopPropagation(); prevImage(); }} className="absolute left-4 md:left-10 text-white/50 hover:text-white transition-colors"><FaChevronLeft size={48} /></button>
           <img src={allGalleryImages[selectedImage]} alt="Fullscreen" loading="lazy" className="max-w-full max-h-screen object-contain" />

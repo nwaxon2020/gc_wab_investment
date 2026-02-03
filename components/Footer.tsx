@@ -9,7 +9,7 @@ import {
     GoogleAuthProvider, 
     signInWithPopup 
 } from 'firebase/auth'
-import { doc, getDoc, setDoc } from 'firebase/firestore'
+import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore'
 import { toast } from 'sonner'
 import Link from 'next/link'
 
@@ -20,11 +20,35 @@ export default function Footer() {
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
 
-    // DYNAMIC SOCIAL LINKS: Twitter replaced with Facebook
+    // --- DYNAMIC DATA STATE ---
+    const [footerData, setFooterData] = useState({
+        email: 'princenwachuwu308@yahoo.com',
+        tiktok: 'https://www.tiktok.com/@nomo_properties',
+        facebook: 'https://www.facebook.com/nwaxonprincezy',
+        instagram: 'https://www.instagram.com/nwaxon/'
+    })
+
+    // 1. SYNC FOOTER DATA
+    useEffect(() => {
+        const unsubData = onSnapshot(doc(db, 'site_settings', 'about_page'), (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                setFooterData({
+                    email: data.email || 'princenwachuwu308@yahoo.com',
+                    tiktok: data.tiktok || 'https://www.tiktok.com/@nomo_properties',
+                    facebook: data.facebook || 'https://www.facebook.com/nwaxonprincezy',
+                    instagram: data.instagram || 'https://www.instagram.com/nwaxon/'
+                });
+            }
+        });
+        return () => unsubData();
+    }, []);
+
+    // DYNAMIC SOCIAL LINKS GENERATOR
     const socialLinks = [
-        { name: 'instagram', url: 'https://www.instagram.com/nwaxon/', icon: 'fab fa-instagram' },
-        { name: 'tiktok', url: 'https://www.tiktok.com/@nomo_properties', icon: 'fab fa-tiktok' },
-        { name: 'facebook', url: 'https://www.facebook.com/nwaxonprincezy', icon: 'fab fa-facebook' },
+        { name: 'instagram', url: footerData.instagram, icon: 'fab fa-instagram' },
+        { name: 'tiktok', url: footerData.tiktok, icon: 'fab fa-tiktok' },
+        { name: 'facebook', url: footerData.facebook, icon: 'fab fa-facebook' },
     ];
 
     useEffect(() => {
@@ -123,7 +147,7 @@ export default function Footer() {
                     <div className="flex flex-col space-y-4">
                         <h4 className="text-[10px] font-black text-[#16a34a] uppercase tracking-[0.3em] mb-2">Company</h4>
                         <Link href="/about" className="text-sm font-bold hover:text-white transition-colors">About Us</Link>
-                        <a href="mailto:princenwachuwu308@yahoo.com" className="text-sm font-bold hover:text-white transition-colors">Contact Support</a>
+                        <a href={`mailto:${footerData.email}`} className="text-sm font-bold hover:text-white transition-colors">Contact Support</a>
                     </div>
 
                     <div className="text-left md:text-right flex flex-col gap-12 md:gap-3 justify-between md:items-end">
@@ -156,7 +180,7 @@ export default function Footer() {
 
                 <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
                     <p className="text-[10px] font-black text-[#16a34a] uppercase tracking-widest">
-                        princenwachuwu308@yahoo.com
+                        {footerData.email}
                     </p>
                     <div className='flex gap-5 md:gap-10 font-semibold text-xs md:text-sm uppercase tracking-wider'>
                         <Link href="/terms" className="hover:text-white transition-colors">Terms </Link>
@@ -173,7 +197,7 @@ export default function Footer() {
 
             {showAdminOverlay && (
                 <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-md p-3">
-                    <div className="bg-[#0f0f0f] w-full max-w-md rounded-xl p-4 md:p-6 md:p-10 border border-white/10 shadow-[0_0_50px_rgba(22,163,74,0.1)] relative">
+                    <div className="bg-[#0f0f0f] w-full max-w-md rounded-xl p-4 md:p-6 border border-white/10 shadow-[0_0_50px_rgba(22,163,74,0.1)] relative">
                         <button 
                             onClick={() => setShowAdminOverlay(false)} 
                             className="absolute top-8 right-8 text-gray-500 hover:text-white"

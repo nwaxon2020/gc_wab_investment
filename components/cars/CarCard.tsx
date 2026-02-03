@@ -8,10 +8,13 @@ import { doc, updateDoc, increment, onSnapshot, getDoc } from 'firebase/firestor
 import { 
   FaPlay, FaTimes, FaWhatsapp, FaExternalLinkAlt, 
   FaCalendarAlt, FaCogs, FaHandshake, FaFileAlt,
-  FaPalette, FaCouch, FaAward, FaHeart, FaRegHeart,
+  FaPalette, FaCouch, FaAward, FaHeart, FaRegHeart, FaPause
 } from 'react-icons/fa';
 import { GiGearStickPattern } from "react-icons/gi";
 
+// ==========================================
+// 1. TYPES & INTERFACES
+// ==========================================
 interface Car {
   id: number | string;
   name: string;
@@ -31,24 +34,30 @@ interface CarCardProps {
 
 const CarCard: React.FC<CarCardProps> = ({ car }) => {
   const searchParams = useSearchParams();
+  
+  // ==========================================
+  // 2. STATE MANAGEMENT
+  // ==========================================
   const [isHovered, setIsHovered] = useState<boolean>(false);
   const [showDetails, setShowDetails] = useState<boolean>(false);
   const [showFullImage, setShowFullImage] = useState<boolean>(false);
   const [imgIndex, setImgIndex] = useState(0); 
   const [isVideoPlaying, setIsVideoPlaying] = useState<boolean>(false);
+  const [isPaused, setIsPaused] = useState<boolean>(false); 
   const [isLiked, setIsLiked] = useState<boolean>(false);
   const [dbLikes, setDbLikes] = useState<number>(car.likes || 0); 
-  
-  // Updated state to match Finance Editor storage
   const [contactInfo, setContactInfo] = useState({ phoneNumber: "+2347034632037" });
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  // --- FETCH CONTACT FROM FINANCE EDITOR CONFIG ---
+  // ==========================================
+  // 3. DATA FETCHING & SYNC
+  // ==========================================
+  
+  // Fetch CEO Contact from About Page Editor
   useEffect(() => {
     const fetchContactInfo = async () => {
       try {
-        // Points to the same document your FinanceSettingsEditor saves to
-        const docRef = doc(db, 'site_settings', 'engagement_config');
+        const docRef = doc(db, 'site_settings', 'about_page');
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           const data = docSnap.data();
@@ -61,6 +70,7 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
     fetchContactInfo();
   }, []);
 
+  // Real-time Likes Sync from Firestore
   useEffect(() => {
     const unsub = onSnapshot(doc(db, 'vehicles', String(car.id)), (docSnap) => {
       if (docSnap.exists()) {
@@ -70,6 +80,7 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
     return () => unsub();
   }, [car.id]);
 
+  // Load User Liked Status from LocalStorage
   useEffect(() => {
     const savedLikes = JSON.parse(localStorage.getItem('user_liked_cars') || '{}');
     if (savedLikes[car.id]) {
@@ -77,6 +88,19 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
     }
   }, [car.id]);
 
+  // Deep link detection (e.g., ?view=ID)
+  useEffect(() => {
+    const viewId = searchParams.get('view');
+    if (viewId && viewId === car.id.toString()) {
+      setShowDetails(true);
+      window.scrollTo({ top: 400, behavior: 'smooth' });
+    }
+  }, [searchParams, car.id]);
+
+  // ==========================================
+  // 4. ACTION HANDLERS
+  // ==========================================
+  
   const toggleLike = async (e: React.MouseEvent) => {
     e.stopPropagation();
     const carRef = doc(db, 'vehicles', String(car.id));
@@ -99,30 +123,29 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
     }
   };
 
-  const technicalDbUrl = useMemo(() => {
-    if (car.externalLink && car.externalLink.startsWith('http')) return car.externalLink;
-    return `https://www.auto-data.net/en/results?search=${encodeURIComponent(car.name + " " + car.model)}`;
-  }, [car.name, car.model, car.externalLink]);
-
-  const selectedImage = car.images[imgIndex];
-
-  useEffect(() => {
-    const viewId = searchParams.get('view');
-    if (viewId && viewId === car.id.toString()) {
-      setShowDetails(true);
-      window.scrollTo({ top: 400, behavior: 'smooth' });
-    }
-  }, [searchParams, car.id]);
-
-  const handleVideoPlay = () => { setIsVideoPlaying(true); videoRef.current?.play(); };
+  const handleVideoPlay = () => { setIsVideoPlaying(true); setIsPaused(false); setTimeout(() => videoRef.current?.play(), 100); };
   const handleVideoClose = () => { setIsVideoPlaying(false); videoRef.current?.pause(); };
+
+  const togglePlayPause = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (videoRef.current) {
+      if (videoRef.current.paused) {
+        videoRef.current.play();
+        setIsPaused(false);
+      } else {
+        videoRef.current.pause();
+        setIsPaused(true);
+      }
+    }
+  };
   
-  // --- UPDATED WHATSAPP LOGIC ---
   const openWhatsApp = () => { 
     const message = `Hello! I'm interested in the ${car.name} ${car.model}. Please provide more details.`;
-    // Standardize number: remove '+' and any non-digits
-    const finalPhone = contactInfo.phoneNumber.replace(/\D/g, '');
-    window.open(`https://wa.me/${finalPhone}?text=${encodeURIComponent(message)}`, '_blank'); 
+    let cleanNumber = contactInfo.phoneNumber.replace(/\D/g, '');
+    if (cleanNumber.startsWith('0')) {
+      cleanNumber = '234' + cleanNumber.substring(1);
+    }
+    window.open(`https://wa.me/${cleanNumber}?text=${encodeURIComponent(message)}`, '_blank'); 
   };
 
   const handleDragEnd = (event: any, info: any) => {
@@ -133,8 +156,19 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
     }
   };
 
+  const technicalDbUrl = useMemo(() => {
+    if (car.externalLink && car.externalLink.startsWith('http')) return car.externalLink;
+    return `https://www.auto-data.net/en/results?search=${encodeURIComponent(car.name + " " + car.model)}`;
+  }, [car.name, car.model, car.externalLink]);
+
+  const selectedImage = car.images[imgIndex];
+
+  // ==========================================
+  // 5. RENDER LOGIC
+  // ==========================================
   return (
     <>
+      {/* --- PART A: MAIN CARD PREVIEW --- */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -226,18 +260,66 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
         </div>
       </motion.div>
 
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
+        {/* --- PART B: FULLSCREEN VIDEO PLAYER MODAL --- */}
         {isVideoPlaying && (
-          <div className="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-4" onClick={handleVideoClose}>
-            <div className="relative max-w-4xl w-full" onClick={(e) => e.stopPropagation()}>
-              <button onClick={handleVideoClose} className="absolute -top-12 right-0 text-white text-2xl hover:text-red-500 transition-colors"><FaTimes /></button>
-              <video ref={videoRef} src={car.videoUrl} controls className="w-full rounded-2xl shadow-2xl" onEnded={() => setIsVideoPlaying(false)} />
+          <motion.div 
+            key="video-player"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black z-[100] flex items-center justify-center" 
+            onClick={handleVideoClose}
+          >
+            <div className="relative w-full h-[100dvh] md:h-auto md:max-w-5xl md:max-h-[80vh] flex flex-col items-center justify-center" onClick={(e) => e.stopPropagation()}>
+              <button 
+                onClick={handleVideoClose} 
+                className="absolute top-6 right-6 md:-top-10 md:right-0 text-white text-3xl z-[110] bg-black/50 rounded-full p-2 md:bg-transparent"
+              >
+                <FaTimes />
+              </button>
+              
+              {/* VIDEO PLAY/PAUSE OVERLAY */}
+              <div 
+                className="absolute inset-0 z-[105] flex items-center justify-center cursor-pointer group"
+                onClick={togglePlayPause}
+              >
+                <motion.div 
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ 
+                      scale: 1, 
+                      opacity: isPaused ? 1 : 0 
+                    }}
+                    whileHover={{ opacity: 1 }} 
+                    className="bg-black/30 backdrop-blur-sm rounded-full p-3 md:p-6 border border-white/20 transition-opacity duration-300"
+                >
+                    {isPaused ? <FaPlay className="text-white text-3xl md:text-4xl ml-1" /> : <FaPause className="text-white text-3xl md:text-4xl" />}
+                </motion.div>
+              </div>
+
+              <div className="w-full h-full md:h-[auto] md:aspect-video bg-black md:rounded-2xl overflow-hidden shadow-2xl border-none md:border md:border-white/10">
+                 <video 
+                    ref={videoRef} 
+                    src={car.videoUrl} 
+                    playsInline
+                    className="w-full h-full object-cover md:object-contain" 
+                    onEnded={() => {setIsVideoPlaying(false); setIsPaused(false);}}
+                    onPlay={() => setIsPaused(false)}
+                    onPause={() => setIsPaused(true)}
+                  />
+              </div>
             </div>
-          </div>
+          </motion.div>
         )}
 
+        {/* --- PART C: FULL IMAGE ZOOM MODAL --- */}
         {showFullImage && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/98 z-[110] flex flex-col items-center justify-center touch-none" onClick={() => setShowFullImage(false)}>
+          <motion.div 
+            key="full-image"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} 
+            className="fixed inset-0 bg-black/98 z-[110] flex flex-col items-center justify-center touch-none" 
+            onClick={() => setShowFullImage(false)}
+          >
             <button className="absolute top-8 right-8 text-white text-3xl z-[120]"><FaTimes /></button>
             <motion.div key={imgIndex} drag="x" dragConstraints={{ left: 0, right: 0 }} onDragEnd={handleDragEnd} initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }} className="w-full h-full flex items-center justify-center cursor-grab active:cursor-grabbing">
               <img src={car.images[imgIndex]} className="max-w-full max-h-[85vh] object-contain pointer-events-none" />
@@ -245,8 +327,14 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
           </motion.div>
         )}
 
+        {/* --- PART D: DETAILED SPECS MODAL --- */}
         {showDetails && (
-          <div className="fixed inset-0 bg-black/95 z-50 overflow-y-auto p-1.5" onClick={() => setShowDetails(false)}>
+          <motion.div 
+            key="details-modal"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/95 z-50 overflow-y-auto p-1.5" 
+            onClick={() => setShowDetails(false)}
+          >
             <div className="bg-gradient-to-br from-gray-900 to-black rounded-xl max-w-6xl mx-auto my-4 overflow-hidden border border-gray-800" onClick={(e) => e.stopPropagation()}>
               <div className="grid md:grid-cols-2 gap-8 p-3 md:p-6">
                 <div className="flex flex-col gap-2 md:gap-4 overflow-hidden">
@@ -317,7 +405,7 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
       </AnimatePresence>
     </>

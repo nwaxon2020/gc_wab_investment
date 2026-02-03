@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebaseConfig';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { toast } from 'sonner';
-import { FaSave, FaInfoCircle, FaMapMarkerAlt, FaImage, FaLink, FaUpload, FaShieldAlt, FaFileContract } from 'react-icons/fa';
+import { FaSave, FaInfoCircle, FaMapMarkerAlt, FaImage, FaLink, FaUpload, FaShieldAlt, FaFileContract, FaPhoneAlt, FaEnvelope, FaTiktok, FaFacebook, FaInstagram } from 'react-icons/fa';
 
 export default function AboutSettingsEditor() {
     const [loading, setLoading] = useState(true);
@@ -21,6 +21,11 @@ export default function AboutSettingsEditor() {
         mainDescription: '',
         ceoName: '',
         ceoImage: '',
+        phoneNumber: '', 
+        email: '',       
+        tiktok: '',      // Added field
+        facebook: '',    // Added field
+        instagram: '',   // Added field
         carsLocation: { title: '', address: '', image: '', mapUrl: '' },
         fashionLocation: { title: '', address: '', image: '', mapUrl: '' },
         // New Legal Fields
@@ -81,7 +86,7 @@ export default function AboutSettingsEditor() {
 
     return (
         <div className="bg-gray-900 border border-white/5 rounded-xl p-2 md:p-6 shadow-2xl space-y-8">
-            <div className="flex flex-col md:flex-row  gap-3 md:items-center md:justify-between border-b border-white/5 pb-4">
+            <div className="flex flex-col md:flex-row   gap-3 md:items-center md:justify-between border-b border-white/5 pb-4">
                 <h2 className="text-xl font-black text-white uppercase tracking-tighter flex items-center gap-2">
                     <FaInfoCircle className="text-emerald-500" /> About Page Content
                 </h2>
@@ -189,6 +194,70 @@ export default function AboutSettingsEditor() {
                         {data.ceoImage && (
                             <img src={data.ceoImage} alt="CEO Preview" className="mt-4 h-20 w-16 object-cover rounded-lg border border-white/10" />
                         )}
+                    </div>
+
+                    {/* CONTACT & SOCIAL INPUTS */}
+                    <div className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="text-gray-500 text-[10px] uppercase font-bold block mb-1 flex items-center gap-2">
+                                    <FaPhoneAlt className="text-emerald-500" size={10} /> CEO Phone
+                                </label>
+                                <input 
+                                    value={data.phoneNumber}
+                                    onChange={(e) => setData({...data, phoneNumber: e.target.value})}
+                                    placeholder="+234..."
+                                    className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white text-sm outline-none focus:border-emerald-500"
+                                />
+                            </div>
+                            <div>
+                                <label className="text-gray-500 text-[10px] uppercase font-bold block mb-1 flex items-center gap-2">
+                                    <FaEnvelope className="text-emerald-500" size={10} /> CEO Email
+                                </label>
+                                <input 
+                                    value={data.email}
+                                    onChange={(e) => setData({...data, email: e.target.value})}
+                                    placeholder="ceo@company.com"
+                                    className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white text-sm outline-none focus:border-emerald-500"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-3">
+                            <div>
+                                <label className="text-gray-500 text-[10px] uppercase font-bold block mb-1 flex items-center gap-2">
+                                    <FaTiktok className="text-emerald-500" size={10} /> TikTok URL
+                                </label>
+                                <input 
+                                    value={data.tiktok}
+                                    onChange={(e) => setData({...data, tiktok: e.target.value})}
+                                    placeholder="https://tiktok.com/@username"
+                                    className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white text-sm outline-none focus:border-emerald-500"
+                                />
+                            </div>
+                            <div>
+                                <label className="text-gray-500 text-[10px] uppercase font-bold block mb-1 flex items-center gap-2">
+                                    <FaFacebook className="text-emerald-500" size={10} /> Facebook URL
+                                </label>
+                                <input 
+                                    value={data.facebook}
+                                    onChange={(e) => setData({...data, facebook: e.target.value})}
+                                    placeholder="https://facebook.com/username"
+                                    className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white text-sm outline-none focus:border-emerald-500"
+                                />
+                            </div>
+                            <div>
+                                <label className="text-gray-500 text-[10px] uppercase font-bold block mb-1 flex items-center gap-2">
+                                    <FaInstagram className="text-emerald-500" size={10} /> Instagram URL
+                                </label>
+                                <input 
+                                    value={data.instagram}
+                                    onChange={(e) => setData({...data, instagram: e.target.value})}
+                                    placeholder="https://instagram.com/username"
+                                    className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white text-sm outline-none focus:border-emerald-500"
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

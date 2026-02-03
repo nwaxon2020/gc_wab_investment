@@ -5,46 +5,56 @@ import Hero from '@/components/home/Hero'
 import Link from 'next/link'
 import News from '@/components/News'
 import SplitFeature from '@/components/home/SplitFeature'
+import { db } from '@/lib/firebaseConfig'
+import { doc, getDoc, onSnapshot } from 'firebase/firestore'
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<'cars' | 'fashion'>('cars')
   const [isLoaded, setIsLoaded] = useState(false)
+  const [carData, setCarData] = useState<any[]>([])
+  const [fashionData, setFashionData] = useState<any[]>([])
+  const [homeConfig, setHomeConfig] = useState<any>({ cars: {}, fashion: {} })
 
-  // 1. Initial Load: Check localStorage for saved preference
   useEffect(() => {
     const savedTab = localStorage.getItem('gc-wab-active-tab') as 'cars' | 'fashion'
-    if (savedTab) {
-      setActiveTab(savedTab)
-    }
+    if (savedTab) setActiveTab(savedTab)
     setIsLoaded(true)
+
+    const unsubCar = onSnapshot(doc(db, 'site_settings', 'home_car_config'), async (snap) => {
+      if (snap.exists()) {
+        const data = snap.data()
+        setHomeConfig((prev: any) => ({ ...prev, cars: data }))
+        
+        const ids = data.featuredIds || []
+        const items = await Promise.all(ids.map(async (id: string) => {
+          const d = await getDoc(doc(db, 'vehicles', id))
+          return d.exists() ? { id: d.id, src: d.data().images?.[0] } : null
+        }))
+        setCarData(items.filter(Boolean))
+      }
+    })
+
+    const unsubFash = onSnapshot(doc(db, 'site_settings', 'home_fashion_config'), async (snap) => {
+      if (snap.exists()) {
+        const data = snap.data()
+        setHomeConfig((prev: any) => ({ ...prev, fashion: data }))
+        
+        const ids = data.featuredIds || []
+        const items = await Promise.all(ids.map(async (id: string) => {
+          const d = await getDoc(doc(db, 'fashion_products', id))
+          return d.exists() ? { id: d.id, src: d.data().colors?.[0]?.imageUrl } : null
+        }))
+        setFashionData(items.filter(Boolean))
+      }
+    })
+
+    return () => { unsubCar(); unsubFash(); }
   }, [])
 
-  // 2. Custom Setter: Saves to localStorage whenever tab changes
   const handleTabChange = (tab: 'cars' | 'fashion') => {
     setActiveTab(tab)
     localStorage.setItem('gc-wab-active-tab', tab)
   }
-
-  const carData = [
-    { 
-      id: 1, 
-      src: "https://hips.hearstapps.com/hmg-prod/images/2026-toyota-camry-se-hybrid-nightshade-fwd-155-695bf27312d0c.jpg?crop=0.766xw:0.643xh;0.161xw,0.260xh&resize=1200:*" 
-    },
-    { 
-      id: 2, 
-      src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQfVK-e56gp2cu8L7zZ61b1JPq5WIDV2WL2aA&s" 
-    },
-    { 
-      id: 5, 
-      src: "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=800" 
-    },
-  ]
-
-  const fashionData = [
-    { id: 'f1', src: 'https://images.unsplash.com/photo-1445205170230-053b83016050?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-    { id: 'f2', src: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-    { id: 'f3', src: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' }
-  ]
 
   return (
     <div className="min-h-screen bg-[#f0fdf4] font-sans overflow-hidden">
@@ -57,43 +67,53 @@ export default function Home() {
 
       <main className="relative z-10 container mx-auto sm:px-6 lg:px-8 pt-8 pb-6 md:pb-16">
         <div className="px-3 flex justify-center mb-12">
-          <div className="inline-flex rounded-xl p-1 bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
+          <div className="hidden md:block inline-flex rounded-xl p-1 bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
             <button
               onClick={() => handleTabChange('cars')}
-              className={`px-8 py-4 rounded-xl text-lg font-semibold transition-all duration-300 ${activeTab === 'cars' ? 'text-white shadow-lg' : 'text-gray-600 hover:text-gray-900'}`}
+              className={`p-4 md:px-8 rounded-xl text-sm md:text-lg font-semibold transition-all duration-300 ${activeTab === 'cars' ? 'text-white shadow-lg' : 'text-gray-600 hover:text-gray-900'}`}
               style={{ backgroundColor: activeTab === 'cars' ? '#14532d' : 'transparent' }}
             >
-              <span className='hidden md:block'><i className="fas fa-car mr-3"></i> Luxury Cars</span>
-              <span className='md:hidden'><i className="fas fa-car mr-3"></i> Cars</span>
+              <i className="fas fa-car mr-3"></i> {activeTab === 'cars' ? 'Luxury Cars' : 'Cars'}
             </button>
             <button
               onClick={() => handleTabChange('fashion')}
-              className={`px-8 py-4 rounded-xl text-lg font-semibold transition-all duration-300 ${activeTab === 'fashion' ? 'text-white shadow-lg' : 'text-gray-600 hover:text-gray-900'}`}
+              className={`px-4 md:px-8 py-4 rounded-xl text-sm md:text-lg font-semibold transition-all duration-300 ${activeTab === 'fashion' ? 'text-white shadow-lg' : 'text-gray-600 hover:text-gray-900'}`}
               style={{ backgroundColor: activeTab === 'fashion' ? '#14532d' : 'transparent' }}
             >
-              <span className='hidden md:block'><i className="fas fa-tshirt mr-3"></i> Fashion Collection</span>
-              <span className='md:hidden'><i className="fas fa-tshirt mr-3"></i> Fashion</span>
+              <i className="fas fa-tshirt mr-3"></i> {activeTab === 'fashion' ? 'Fashion Collection' : 'Fashion'}
             </button>
           </div>
         </div>
 
         <div className="px-3 grid lg:grid-cols-2 gap-12 mb-16">
           <div className={`transition-all duration-700 ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}>
-            <div className="bg-white rounded-xl p-8 shadow-2xl border border-gray-100 h-full">
-              <h2 className="text-center text-2xl md:text-4xl font-bold mb-6 text-[#14532d]">
-                {activeTab === 'cars' ? 'Premium Automotive Division' : 'Elite Fashion Brand'}
+            {/* ADJUSTED TO TEXT-LEFT */}
+            <div className="bg-white rounded-xl p-8 shadow-2xl border border-gray-100 h-full flex flex-col justify-center text-left">
+              <h2 className="text-2xl md:text-4xl font-bold mb-6 text-[#14532d] leading-tight">
+                {activeTab === 'cars' 
+                  ? (homeConfig.cars?.heroTitle || 'Premium Automotive Division') 
+                  : (homeConfig.fashion?.heroTitle || 'Elite Fashion Brand')}
               </h2>
               <p className="text-gray-700 text-lg mb-4 md:mb-8 leading-relaxed">
                 {activeTab === 'cars' 
-                  ? 'Discover our curated collection of luxury vehicles, where performance meets elegance.'
-                  : 'Explore our exclusive fashion line where contemporary style meets timeless elegance.'}
+                  ? (homeConfig.cars?.heroDescription || 'Discover our curated collection of luxury vehicles.')
+                  : (homeConfig.fashion?.heroDescription || 'Explore our exclusive fashion line.')}
               </p>
-              <ul className="text-sm md:text-base space-y-1 md:space-y-2 mb-2 md:mb-8">
+              {/* REMOVED ITEMS-CENTER TO KEEP LIST LEFT ALIGNED */}
+              <ul className="text-sm md:text-base space-y-3 mb-8 flex flex-col items-start">
                 {(activeTab === 'cars' 
-                  ? ['Premium Performance', 'Luxury Interiors', 'Exclusive Models']
-                  : ['Premium Materials', 'Artisanal Craftsmanship', 'Limited Editions']
+                  ? [
+                      homeConfig.cars?.feature1 || 'Premium Performance', 
+                      homeConfig.cars?.feature2 || 'Luxury Interiors', 
+                      homeConfig.cars?.feature3 || 'Exclusive Models'
+                    ]
+                  : [
+                      homeConfig.fashion?.feature1 || 'Premium Materials', 
+                      homeConfig.fashion?.feature2 || 'Artisanal Craftsmanship', 
+                      homeConfig.fashion?.feature3 || 'Limited Editions'
+                    ]
                 ).map((feature, index) => (
-                  <li key={index} className="flex items-center text-gray-700 font-medium">
+                  <li key={index} className="flex items-center text-gray-700 font-bold tracking-tight">
                     <i className="fas fa-check mr-3 text-[#16a34a]"></i> {feature}
                   </li>
                 ))}
@@ -104,24 +124,21 @@ export default function Home() {
           <div className={`transition-all duration-700 delay-300 ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}`}>
             <div className="grid grid-cols-2 gap-4 h-full">
               {(activeTab === 'cars' ? carData : fashionData).map((item, index) => (
-                <div key={index} className={`relative overflow-hidden rounded-xl ${index === 0 ? 'col-span-2 h-64' : 'h-48'}`}>
-                  
+                <div key={item.id} className={`relative overflow-hidden rounded-xl ${index === 0 ? 'col-span-2 h-64' : 'h-48'}`}>
                   <Link href={activeTab === 'cars' ? `/cars?view=${item.id}` : `/shop#shophere`}>
                     <img 
                       src={item.src} 
-                      loading="lazy" 
                       className="w-full h-full object-cover transform hover:scale-110 transition-transform duration-700 cursor-pointer" 
-                      alt="Item" 
+                      alt="Featured Item" 
                     />
                   </Link>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent pointer-events-none"></div>
-                  
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none"></div>
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/20">
                     <Link 
                       href={activeTab === 'cars' ? `/cars?view=${item.id}` : `/shop#shophere`}
-                      className="bg-white text-[#14532d] px-6 py-2 rounded-full font-bold shadow-lg transform translate-y-2 hover:translate-y-0 transition-transform"
+                      className="text-xs bg-white text-[#14532d] px-6 py-2 rounded-full font-bold shadow-lg transform translate-y-2 hover:translate-y-0 transition-transform"
                     >
-                      {activeTab === 'cars' ? 'View More' : 'Pick Up'}
+                      {activeTab === 'cars' ? 'View Details' : 'Explore More Options'}
                     </Link>
                   </div>
                 </div>
@@ -147,7 +164,7 @@ export default function Home() {
       </div>
 
       <div className='bg-gray-900 py-4'>
-          <SplitFeature/>
+          <SplitFeature activeTab={activeTab}/>
       </div>
     </div>
   )

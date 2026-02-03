@@ -9,10 +9,10 @@ export default function EngagementSectionUi() {
   const [loanAmount, setLoanAmount] = useState(2000000);
   const [months, setMonths] = useState(12);
   
-  // --- DYNAMIC CONFIG STATE WITH FALLBACKS ---
+  // --- DYNAMIC CONFIG STATE ---
   const [config, setConfig] = useState({
     phoneNumber: "+2347034632037",
-    email: "info@gcwab.com", // Default fallback email
+    email: "info@gcwab.com",
     rate6m: 1.10,
     rate12m: 1.15,
     rate24m: 1.25,
@@ -21,20 +21,36 @@ export default function EngagementSectionUi() {
 
   // Fetch Live Config from Firestore
   useEffect(() => {
-    const unsub = onSnapshot(doc(db, 'site_settings', 'engagement_config'), (docSnap) => {
+    // 1. Listen to Interest Rates from engagement_config
+    const unsubRates = onSnapshot(doc(db, 'site_settings', 'engagement_config'), (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
-        setConfig({
-          phoneNumber: data.phoneNumber || "+2347034632037",
-          email: data.email || "info@gcwab.com", // Fetch dynamic email
+        setConfig(prev => ({
+          ...prev,
           rate6m: data.rate6m || 1.10,
           rate12m: data.rate12m || 1.15,
           rate24m: data.rate24m || 1.25,
           rate36m: data.rate36m || 1.35
-        });
+        }));
       }
     });
-    return () => unsub();
+
+    // 2. Listen to Contact Info from about_page (where AboutSettingsEditor saves)
+    const unsubAbout = onSnapshot(doc(db, 'site_settings', 'about_page'), (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setConfig(prev => ({
+          ...prev,
+          phoneNumber: data.phoneNumber || prev.phoneNumber,
+          email: data.email || prev.email
+        }));
+      }
+    });
+
+    return () => {
+      unsubRates();
+      unsubAbout();
+    };
   }, []);
 
   // --- LOGIC: DYNAMIC INTEREST CALCULATION USING CONFIG ---
@@ -83,8 +99,8 @@ Generated from your Car Collection App.
   };
 
   return (
-    <section className="max-w-7xl mx-auto my-10 px-2 md:px-0">
-      <div className="grid md:grid-cols-2 gap-8">
+    <section className="md:max-w-7xl mx-auto my-10 px-1 md:px-0">
+      <div className="grid md:grid-cols-2 gap-6 md:gap-8">
         
         {/* 1. INTERACTIVE LOAN CALCULATOR */}
         <div className="bg-gradient-to-br from-emerald-900/40 to-black p-4 py-6 md:p-8 rounded-xl border border-emerald-500/20 shadow-xl">

@@ -55,7 +55,7 @@ export default function FiltersSection({ onSearch, onCategoryChange, onPriceChan
 
   return (
     <>
-      <div className="bg-gray-900 text-white px-2 md:px-12 py-3 md:py-4 mb-8">
+      <div className="bg-gray-900 text-white px-2 md:px-6 py-3 md:py-4 mb-8">
         <div className="flex flex-row gap-2 md:gap-4 mb-3">
           <div className="flex-1 relative">
             <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />

@@ -21,7 +21,7 @@ export default function EditVehiclePageUi() {
 
     const [formData, setFormData] = useState({
         name: '', model: '', price: '', year: '', type: 'Sedan',
-        transmission: 'Automatic', condition: 'Tokunbo', engine: 'V6',
+        transmission: 'Auto', condition: 'Tokunbo', engine: 'V6',
         trim: 'LE', papers: 'Yes', interior: '', exterior: '',
         description: '', videoSource: '',
     });
