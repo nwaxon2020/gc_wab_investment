@@ -75,7 +75,8 @@ export default function CartSidebar() {
                 <p className="text-xs font-bold uppercase tracking-widest">Empty Bag</p>
               </div>
             ) : (
-              items.map((item, index) => {
+              /* REVERSED ITEMS TO SHOW LATEST AT TOP */
+              [...items].reverse().map((item, index) => {
                 const itemKey = item.productId ? `${item.productId}-${item.size}-${item.color}` : `item-${index}`;
                 return (
                   <div key={itemKey} className="flex gap-3 p-3 bg-emerald-900/40 rounded-xl border border-white/5 hover:border-white/10 transition-all">
@@ -93,11 +94,9 @@ export default function CartSidebar() {
                         <p className="text-[10px] text-gray-400 mt-0.5 uppercase font-medium">{item.color} | {item.size}</p>
                       </div>
                       <div className="flex items-center justify-between mt-2">
-                        {/* FIXED: Naira Formatting */}
                         <span className="font-bold text-sm" style={{ color: 'goldenrod' }}>₦{formatNaira(item.price)}</span>
                         
                         <div className="flex items-center bg-black/30 rounded-lg border border-white/5">
-                          {/* FIXED: Logic to prevent quantity < 1 */}
                           <button 
                             onClick={() => {
                               if (item.quantity > 1) {
@@ -130,7 +129,6 @@ export default function CartSidebar() {
             <div className="p-6 bg-[#1a1a1a] border-t border-white/5 shrink-0">
               <div className="flex justify-between items-center mb-6">
                 <span className="text-gray-400 text-xs font-bold uppercase tracking-widest">Total</span>
-                {/* FIXED: Naira Formatting */}
                 <span className="text-xl font-black text-white">₦{formatNaira(totalAmount)}</span>
               </div>
               <div className="space-y-3">

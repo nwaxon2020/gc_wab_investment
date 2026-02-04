@@ -7,7 +7,6 @@ import { doc, updateDoc, increment } from 'firebase/firestore';
 import { toast } from 'sonner';
 import OrderOverlay from '@/components/fashion/OrderOverlay';
 import ProductDetailOverlay from '@/components/fashion/ProductDetailOverlay';
-import { useCart } from '@/components/fashion/CartContext';
 
 export interface Product {
   id: string;
@@ -36,7 +35,10 @@ export default function ClothCard({ product }: { product: Product }) {
 
   const syncData = useCallback(() => {
     const likedProducts = JSON.parse(localStorage.getItem('gc_fashion_likes') || '{}');
-    setIsLiked(!!likedProducts[product.id]);
+    const currentlyLiked = !!likedProducts[product.id];
+    setIsLiked(currentlyLiked);
+
+    // Sync review count
     const allStoredReviews = JSON.parse(localStorage.getItem('gc_product_reviews') || '{}');
     const storedReviews = allStoredReviews[product.id] || [];
     setReviewCount(getBaseReviews() + storedReviews.length);
@@ -44,30 +46,41 @@ export default function ClothCard({ product }: { product: Product }) {
 
   useEffect(() => {
     syncData();
+    // Update local like count if the product prop changes (from DB)
+    setLikeCount(product.likes);
+    
     window.addEventListener('storage', syncData);
     return () => window.removeEventListener('storage', syncData);
-  }, [syncData]);
+  }, [syncData, product.likes]);
 
   const toggleLike = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!product.id) return;
-    const productRef = doc(db, 'fashion_products', product.id);
+
     const likedProducts = JSON.parse(localStorage.getItem('gc_fashion_likes') || '{}');
+    const productRef = doc(db, 'fashion_products', product.id);
+    
+    // Optimistic Update: Change UI immediately
+    const willLike = !isLiked;
+    setIsLiked(willLike);
+    setLikeCount(prev => willLike ? prev + 1 : Math.max(0, prev - 1));
+
     try {
-      if (isLiked) {
+      if (!willLike) {
         delete likedProducts[product.id];
         await updateDoc(productRef, { likes: increment(-1) });
-        setLikeCount((prev: number) => Math.max(0, prev - 1));
-        setIsLiked(false);
       } else {
         likedProducts[product.id] = true;
         await updateDoc(productRef, { likes: increment(1) });
-        setLikeCount((prev: number) => prev + 1);
-        setIsLiked(true);
       }
       localStorage.setItem('gc_fashion_likes', JSON.stringify(likedProducts));
       window.dispatchEvent(new Event('storage'));
-    } catch (err) { toast.error("Sync Error"); }
+    } catch (err) {
+      // Revert UI on error
+      setIsLiked(!willLike);
+      setLikeCount(prev => !willLike ? prev + 1 : Math.max(0, prev - 1));
+      toast.error("Failed to update likes");
+    }
   };
 
   return (
@@ -98,7 +111,7 @@ export default function ClothCard({ product }: { product: Product }) {
             </div>
           </div>
         </div>
-        <div className="relative py-2 px-1.5 md:p-3 space-y-2">
+        <div className="relative py-2 px-1.5 md:p-3 space-y-2 text-left">
             <div className="flex flex-col justify-between items-start">
                 <div>
                   <h3 className="text-[11px] md:text-xs font-black text-gray-900 tracking-tight uppercase group-hover:text-emerald-700 transition-colors">{product.name}</h3>
@@ -127,8 +140,8 @@ export default function ClothCard({ product }: { product: Product }) {
             product={product} 
             onClose={() => setShowDetailOverlay(false)} 
             onAddToCart={() => {
-                setShowDetailOverlay(false); // Close details
-                setShowOrderOverlay(true); // Open order
+                setShowDetailOverlay(false);
+                setShowOrderOverlay(true);
             }} 
         />
       )}

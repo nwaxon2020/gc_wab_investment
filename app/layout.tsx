@@ -22,6 +22,35 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'GC WAB INVESTMENTS - Luxury Automotive & Fashion',
   description: 'Premium automotive and fashion brands under GC WAB INVESTMENTS portfolio',
+  // Standard Meta Tags
+  metadataBase: new URL('https://gcwabinvestments.com'), // Replace with your actual domain
+  alternates: {
+    canonical: '/',
+  },
+  // Open Graph / Facebook / WhatsApp
+  openGraph: {
+    title: 'GC WAB INVESTMENTS - Luxury Automotive & Fashion',
+    description: 'Premium automotive and fashion brands under GC WAB INVESTMENTS portfolio',
+    url: 'https://gcwabinvestments.com',
+    siteName: 'GC WAB INVESTMENTS',
+    images: [
+      {
+        url: '/og-image.jpg', // Place this file in your public folder
+        width: 1200,
+        height: 630,
+        alt: 'GC WAB INVESTMENTS Luxury Showcase',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  // Twitter / X
+  twitter: {
+    card: 'summary_large_image',
+    title: 'GC WAB INVESTMENTS - Luxury Automotive & Fashion',
+    description: 'Premium automotive and fashion brands under GC WAB INVESTMENTS portfolio',
+    images: ['/og.png'],
+  },
 }
 
 export default function RootLayout({

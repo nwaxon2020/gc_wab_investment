@@ -4,8 +4,8 @@ import { CartProvider } from '@/components/fashion/CartContext'
 
 
 export const metadata: Metadata = {
-  title: 'Fashion Boutique',
-  description: 'Premium Clothing Store',
+  title: 'GC WAB FASHION BOUTIQUE - Premium Clothing Store',
+  description: 'Clothing Store offering high-quality fashion items and accessories',
 }
 
 export default function RootLayout({
