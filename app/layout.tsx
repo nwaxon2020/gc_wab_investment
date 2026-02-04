@@ -1,13 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-
 import { Toaster } from 'sonner';
-
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import ChatBot from '@/components/ChatBot'
-
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,12 +19,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'GC WAB INVESTMENTS - Luxury Automotive & Fashion',
   description: 'Premium automotive and fashion brands under GC WAB INVESTMENTS portfolio',
-  // Standard Meta Tags
-  metadataBase: new URL('https://gcwabinvestments.com'), // Replace with your actual domain
+  metadataBase: new URL('https://gcwabinvestments.com'),
   alternates: {
     canonical: '/',
   },
-  // Open Graph / Facebook / WhatsApp
   openGraph: {
     title: 'GC WAB INVESTMENTS - Luxury Automotive & Fashion',
     description: 'Premium automotive and fashion brands under GC WAB INVESTMENTS portfolio',
@@ -35,7 +30,7 @@ export const metadata: Metadata = {
     siteName: 'GC WAB INVESTMENTS',
     images: [
       {
-        url: '/og-image.jpg', // Place this file in your public folder
+        url: 'https://res.cloudinary.com/dqm6hjihm/image/upload/v1770204785/og_i2l9y8.png', 
         width: 1200,
         height: 630,
         alt: 'GC WAB INVESTMENTS Luxury Showcase',
@@ -44,12 +39,11 @@ export const metadata: Metadata = {
     locale: 'en_US',
     type: 'website',
   },
-  // Twitter / X
   twitter: {
     card: 'summary_large_image',
     title: 'GC WAB INVESTMENTS - Luxury Automotive & Fashion',
     description: 'Premium automotive and fashion brands under GC WAB INVESTMENTS portfolio',
-    images: ['/og.png'],
+    images: ['https://res.cloudinary.com/dqm6hjihm/image/upload/v1770204785/og_i2l9y8.png'], 
   },
 }
 
@@ -63,21 +57,12 @@ export default function RootLayout({
        <head>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
       </head>
-      
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Nav />
-
         {children}
-
         <Footer />
-
         <ChatBot />
-
         <Toaster position="top-center" richColors />
-
       </body>
     </html>
   );
