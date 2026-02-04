@@ -16,6 +16,14 @@ import { toast } from 'sonner';
 // ==========================================
 // 1. TYPES & INTERFACES
 // ==========================================
+interface Review {
+  id: string;
+  authorId: string;
+  name: string;
+  comment: string;
+  date: string;
+}
+
 interface Car {
   id: number | string;
   name: string;
@@ -36,6 +44,9 @@ interface CarCardProps {
 const CarCard: React.FC<CarCardProps> = ({ car }) => {
   const searchParams = useSearchParams();
   
+  // Capitalize car model name for display
+  const capitalizedModel = car.model ? car.model.toUpperCase() : '';
+
   // ==========================================
   // 2. STATE MANAGEMENT
   // ==========================================
@@ -112,18 +123,16 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
     const carRef = doc(db, 'vehicles', String(car.id));
     const savedLikes = JSON.parse(localStorage.getItem('user_liked_cars') || '{}');
 
-    // OPTIMISTIC UPDATE: Change UI state immediately
+    // OPTIMISTIC UPDATE
     const willLike = !isLiked;
     setIsLiked(willLike);
     setDbLikes(prev => willLike ? prev + 1 : Math.max(0, prev - 1));
 
     try {
       if (!willLike) {
-        // Unlike Action
         delete savedLikes[car.id];
         await updateDoc(carRef, { likes: increment(-1) });
       } else {
-        // Like Action
         savedLikes[car.id] = true;
         await updateDoc(carRef, { likes: increment(1) });
       }
@@ -131,7 +140,6 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
       localStorage.setItem('user_liked_cars', JSON.stringify(savedLikes));
       window.dispatchEvent(new Event('likesUpdated'));
     } catch (error) {
-      // REVERT UI ON ERROR: Snap back to original state if DB fails
       setIsLiked(!willLike);
       setDbLikes(prev => !willLike ? prev + 1 : Math.max(0, prev - 1));
       toast.error("Like failed to sync with server");
@@ -156,7 +164,7 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
   };
   
   const openWhatsApp = () => { 
-    const message = `Hello! I'm interested in the ${car.name} ${car.model}. Please provide more details.`;
+    const message = `Hello! I'm interested in the ${car.name} ${capitalizedModel}. Please provide more details.`;
     let cleanNumber = contactInfo.phoneNumber.replace(/\D/g, '');
     if (cleanNumber.startsWith('0')) {
       cleanNumber = '234' + cleanNumber.substring(1);
@@ -235,9 +243,9 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
               </span>
               <h3 className="text-sm md:text-lg font-semibold md:font-bold text-white pb-1 md:pb-0">
                 {car.name} {" "}
-                <small className="md:hidden font-medium text-gray-400 text-[11px] md:text-sm">{car.model} {" "}<span className='text-yellow-500 text-[11px]'>{car.specs[7]}</span></small>
+                <small className="md:hidden font-medium text-gray-400 text-[11px] md:text-sm">{capitalizedModel} {" "}<span className='text-yellow-500 text-[11px]'>{car.specs[7]}</span></small>
               </h3>
-              <p className="hidden md:block text-gray-400 text-sm">{car.model} {" "}<span className='text-yellow-500 text-xs'>{car.specs[7]}</span></p>
+              <p className="hidden md:block text-gray-400 text-sm">{capitalizedModel} {" "}<span className='text-yellow-500 text-xs'>{car.specs[7]}</span></p>
             </div>
             <span className="hidden md:block bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2 md:px-3 py-1 rounded-lg md:rounded-full text-[10px] md:text-sm md:font-bold">
               ₦{car.price.toLocaleString()}
@@ -282,10 +290,10 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
             onClick={handleVideoClose}
           >
             <div className="relative w-full h-[100dvh] md:h-auto md:max-w-5xl md:max-h-[80vh] flex flex-col items-center justify-center" onClick={(e) => e.stopPropagation()}>
-              <button onClick={handleVideoClose} className="absolute top-6 right-6 md:-top-10 md:right-0 text-white text-3xl z-[110] bg-black/50 rounded-full p-2 md:bg-transparent"><FaTimes /></button>
+              <button onClick={handleVideoClose} className="absolute top-6 right-6 md:-top-10 md:right-0 text-white text-2xl z-[110] bg-black/50 rounded-full p-2 md:bg-transparent"><FaTimes /></button>
               <div className="absolute inset-0 z-[105] flex items-center justify-center cursor-pointer group" onClick={togglePlayPause}>
                 <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: isPaused ? 1 : 0 }} whileHover={{ opacity: 1 }} className="bg-black/30 backdrop-blur-sm rounded-full p-3 md:p-6 border border-white/20 transition-opacity duration-300">
-                    {isPaused ? <FaPlay className="text-white text-3xl md:text-4xl ml-1" /> : <FaPause className="text-white text-3xl md:text-4xl" />}
+                    {isPaused ? <FaPlay className="text-white text-xl md:text-2xl ml-1" /> : <FaPause className="text-white text-xl md:text-2xl" />}
                 </motion.div>
               </div>
               <div className="w-full h-full md:h-[auto] md:aspect-video bg-black md:rounded-2xl overflow-hidden shadow-2xl border-none md:border md:border-white/10">
@@ -335,7 +343,7 @@ const CarCard: React.FC<CarCardProps> = ({ car }) => {
                     <div className="flex items-center gap-4">
                       <div>
                         <h2 className="text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">{car.name}</h2>
-                        <p className="text-xl text-gray-400">{car.model}{" "}{car.specs[7]}</p>
+                        <p className="text-xl text-gray-400">{capitalizedModel}{" "}{car.specs[7]}</p>
                       </div>
                       <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={toggleLike} className={`p-3 rounded-2xl border transition-all ${isLiked ? 'bg-red-500/10 border-red-500/50 text-red-500 shadow-[0_0_15px_rgba(239,68,68,0.2)]' : 'bg-white/5 border-white/10 text-white'}`}>
                         {isLiked ? <FaHeart /> : <FaRegHeart />}

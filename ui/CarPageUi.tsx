@@ -102,7 +102,7 @@ export default function Home() {
 
   return (
     <>
-      <main className="min-h-screen bg-gradient-to-b from-gray-950 to-black text-white py-14 md:px-10 ">
+      <main className="min-h-screen bg-gradient-to-b from-gray-950 to-black text-white py-14">
         <div className='md:px-2 relative'>
           <CarHero />
 
@@ -170,7 +170,7 @@ export default function Home() {
         </div>
 
         {/* INVENTORY LIST - VALUES FROM BACKEND */}
-        <div className="px-1.5 md:px-3 max-w-7xl mx-auto">
+        <div className="px-1.5 md:px-6 max-w-7xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1 md:gap-6">
              {filteredCars.map((car) => (
                <div key={String(car.id)} className='my-2'><CarCard car={car} /></div>
